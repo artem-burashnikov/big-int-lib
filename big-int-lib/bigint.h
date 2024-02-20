@@ -12,10 +12,13 @@ typedef struct
     char *digits;
 } BigInt;
 
-/* Allocates the memory for the BigInt structure. */
+/* Allocates the memory for the BigInt structure of the specified length. */
 BigInt alloc_bigint(size_t length);
 
 /* Converts from string to BigInt. */
 BigInt strtobi(char *str);
+
+/* Converts from BigInt to string */
+char *bitostr(BigInt n);
 
 #endif /* BIGINT_H_ */

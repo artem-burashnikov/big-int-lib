@@ -80,3 +80,36 @@ BigInt strtobi(char *str)
 
     return bint;
 }
+
+char *bitostr(BigInt n)
+{
+    char *str;
+    size_t str_len = n.length;
+    size_t num_digits = n.length;
+    size_t i, j;
+    i = j = 0;
+
+    if (n.is_negative)
+    {
+        ++str_len;
+    }
+
+    str = malloc((sizeof(char)) * str_len + 1);
+
+    if (n.is_negative)
+    {
+        str[0] = '-';
+        ++i;
+    }
+
+    while (j < num_digits)
+    {
+        str[i] = n.digits[num_digits - 1 - j];
+        i++;
+        j++;
+    }
+
+    str[i] = '\0';
+
+    return str;
+}

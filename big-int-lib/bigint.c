@@ -81,22 +81,22 @@ BigInt strtobi(char *str)
     return bint;
 }
 
-char *bitostr(BigInt n)
+char *bitostr(BigInt x)
 {
     char *str;
-    size_t str_len = n.length;
-    size_t num_digits = n.length;
+    size_t str_len = x.length;
+    size_t num_digits = x.length;
     size_t i, j;
     i = j = 0;
 
-    if (n.is_negative)
+    if (x.is_negative)
     {
         ++str_len;
     }
 
     str = malloc((sizeof(char)) * str_len + 1);
 
-    if (n.is_negative)
+    if (x.is_negative)
     {
         str[0] = '-';
         ++i;
@@ -104,7 +104,7 @@ char *bitostr(BigInt n)
 
     while (j < num_digits)
     {
-        str[i] = n.digits[num_digits - 1 - j];
+        str[i] = x.digits[num_digits - 1 - j];
         i++;
         j++;
     }
@@ -112,4 +112,34 @@ char *bitostr(BigInt n)
     str[i] = '\0';
 
     return str;
+}
+
+int bicmp(BigInt *x, BigInt *y)
+{
+    size_t len;
+    int ret = 0;
+
+    if ((x->length) != (y->length))
+    {
+        ret = 1;
+    }
+    else if ((x->is_negative) != (y->is_negative))
+    {
+        ret = 1;
+    }
+    else
+    {
+        /* Both length values are identical at this point. */
+        len = x->length;
+        for (size_t i = 0; i < len; ++i)
+        {
+            if ((x->digits[i]) != (y->digits[i]))
+            {
+                ret = 1;
+                break;
+            }
+        }
+    }
+
+    return ret;
 }

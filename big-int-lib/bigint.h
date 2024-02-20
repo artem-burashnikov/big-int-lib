@@ -15,10 +15,20 @@ typedef struct
 /* Allocates the memory for the BigInt structure of the specified length. */
 BigInt alloc_bigint(size_t length);
 
-/* Converts from string to BigInt. */
+/* Converts from string base 10 to BigInt. */
 BigInt strtobi(char *str);
 
-/* Converts from BigInt to string */
-char *bitostr(BigInt n);
+/* Converts from BigInt to string base 10. */
+char *bitostr(BigInt x);
+
+/* Compares two big integers.
+   Return 0 if identical, 1 if different. */
+int bicmp(BigInt *x, BigInt *y);
+
+/* Return sum of two big integers. */
+BigInt biadd(BigInt *x, BigInt *y);
+
+/* Return difference of two big integers. */
+BigInt bisubtract(BigInt *x, BigInt *y);
 
 #endif /* BIGINT_H_ */

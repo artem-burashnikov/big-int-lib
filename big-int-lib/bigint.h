@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -12,23 +11,38 @@ typedef struct
     char *digits;
 } BigInt;
 
-/* Allocates the memory for the BigInt structure of the specified length. */
-BigInt alloc_bigint(size_t length);
+/* Initialize a new BigInt structure. */
+BigInt *bigint_init(void);
 
-/* Converts from string base 10 to BigInt. */
-BigInt strtobi(char *str);
+/* Free an allocated memory. */
+int bifree(BigInt *x);
 
-/* Converts from BigInt to string base 10. */
-char *bitostr(BigInt x);
+/* Return a pointer to a new BigInt structure of the specified length. */
+BigInt *bigint_from_size(size_t length);
 
-/* Compares two big integers.
+/* Convert from string base 10 to BigInt. */
+BigInt *str_to_bigint(char *str);
+
+/* Convert from BigInt to string base 10. */
+char *bigint_to_str(BigInt *x);
+
+/* Compare two big integers.
    Return 0 if identical, 1 if different. */
-int bicmp(BigInt *x, BigInt *y);
+int bigint_cmp(BigInt *x, BigInt *y);
 
-/* Return sum of two big integers. */
-BigInt biadd(BigInt *x, BigInt *y);
+/* Return the sum of two big integers. */
+BigInt *bigint_add(BigInt *x, BigInt *y);
 
-/* Return difference of two big integers. */
-BigInt bisubtract(BigInt *x, BigInt *y);
+/* Return the difference of two big integers. */
+BigInt *bigint_subtract(BigInt *x, BigInt *y);
+
+/* Return the product of two big integers. */
+BigInt *bigint_mul(BigInt *x, BigInt *y);
+
+/* Perform an integer division of two big integers. */
+BigInt *bigint_div(BigInt *x, BigInt *y);
+
+/* Perform a modulo division of two big integers. */
+BigInt *bigint_mod(BigInt *x, BigInt *y);
 
 #endif /* BIGINT_H_ */

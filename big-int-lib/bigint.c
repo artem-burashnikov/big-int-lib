@@ -1,56 +1,84 @@
 #include "bigint.h"
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
 
-BigInt alloc_bigint(size_t length)
+BigInt *bigint_init()
 {
-    BigInt bint;
+    BigInt *x = malloc(sizeof(BigInt));
 
-    bint.length = length;
-    bint.is_negative = false;
-    bint.digits = malloc(sizeof(char) * length);
-
-    if (bint.digits != NULL)
+    if (x == NULL)
     {
-        return bint;
+        return NULL;
     }
     else
     {
-        printf("A problem occured while trying to allocate the memory.\n");
-        exit(-1);
+        return x;
+    }
+}
+
+int bifree(BigInt *x)
+{
+    free(x->digits);
+    free(x);
+    return 0;
+}
+
+BigInt *bigint_from_size(size_t length)
+{
+    BigInt *x = bigint_init();
+
+    if (x == NULL)
+    {
+        return NULL;
+    }
+
+    x->length = length;
+    x->is_negative = false;
+    x->digits = malloc(sizeof(char) * length);
+
+    if (x->digits != NULL)
+    {
+        return x;
+    }
+    else
+    {
+        free(x);
+        return NULL;
     }
 }
 
 /* Assume base 10 */
-BigInt strtobi(char *str)
+BigInt *str_to_bigint(char *str)
 {
+    BigInt *x;
     /* Length of the input string. */
     size_t len;
     /* Actual significant digits count. */
     size_t digits_cnt;
     bool sign;
+    size_t i;
     char c;
 
     len = strlen(str);
     digits_cnt = len;
 
-    /* The first character might be a sign. */
+    /* Empry input string. */
     if (len == 0)
     {
-        printf("Incorrect strtobi input: string was empty\n");
-        exit(-1);
+        return NULL;
     }
 
-    if ((len == 1) && str[0] == '-')
+    /* String only contains a sign. */
+    if ((len == 1) && ((str[0] == '-') || (str[0] == '+')))
     {
-        printf("Incorrect strtobi input: string only contains a sign.\n");
-        exit(-1);
+        return NULL;
     }
 
     if ((len > 1) && (str[0] == '-'))
     {
+        /* If the first character in a string is a sign,
+           the number of digits is less than the string's length. */
         digits_cnt--;
         sign = true;
     }
@@ -59,44 +87,48 @@ BigInt strtobi(char *str)
         sign = false;
     }
 
-    BigInt bint = alloc_bigint(digits_cnt);
-    bint.is_negative = sign;
+    x = bigint_from_size(digits_cnt);
+    x->is_negative = sign;
 
-    for (size_t i = 0; i < digits_cnt; ++i)
+    for (i = 0; i < digits_cnt; ++i)
     {
         c = str[len - 1 - i];
 
         if ((c >= '0') && (c <= '9'))
         {
-            bint.digits[i] = c - '0';
+            x->digits[i] = c - '0';
         }
         else
         {
-            free(bint.digits);
-            printf("Incorrect strtobi input: string contains non-numeric characters.\n");
-            exit(-1);
+            bifree(x);
+            return NULL;
         }
     }
 
-    return bint;
+    return x;
 }
 
-char *bitostr(BigInt x)
+char *bigint_to_str(BigInt *x)
 {
     char *str;
-    size_t str_len = x.length;
-    size_t num_digits = x.length;
+    size_t str_len = x->length;
+    size_t num_digits = x->length;
     size_t i, j;
     i = j = 0;
 
-    if (x.is_negative)
+    if (x->is_negative)
     {
         ++str_len;
     }
 
     str = malloc((sizeof(char)) * str_len + 1);
 
-    if (x.is_negative)
+    if (str == NULL)
+    {
+        return NULL;
+    }
+
+    if (x->is_negative)
     {
         str[0] = '-';
         ++i;
@@ -104,7 +136,7 @@ char *bitostr(BigInt x)
 
     while (j < num_digits)
     {
-        str[i] = x.digits[num_digits - 1 - j];
+        str[i] = x->digits[num_digits - 1 - j];
         i++;
         j++;
     }
@@ -114,7 +146,7 @@ char *bitostr(BigInt x)
     return str;
 }
 
-int bicmp(BigInt *x, BigInt *y)
+int bigint_cmp(BigInt *x, BigInt *y)
 {
     size_t len;
     int ret = 0;
@@ -143,3 +175,46 @@ int bicmp(BigInt *x, BigInt *y)
 
     return ret;
 }
+
+#if 0
+BigInt *bigint_add(BigInt *x, BigInt *y)
+{
+    BigInt *res;
+    bool sign = false;
+    size_t i, j;
+
+    /* x + (-y) = x - y */
+    if ((!(x->is_negative)) && (y->is_negative))
+    {
+        return bigint_subtract(x, y);
+    }
+
+    /* (-x) + y = y - x */
+    if ((x->is_negative) && (!(y->is_negative)))
+    {
+        return bigint_subtract(y, x);
+    }
+
+    /* (-x) + (-y) = - (x + y) */
+    if ((x->is_negative) && (y->is_negative))
+    {
+        sign = true;
+    }
+
+    res = bigint_init();
+
+    if (res == NULL)
+    {
+        return NULL;
+    }
+
+    res->is_negative = sign;
+
+    return NULL;
+}
+
+BigInt *bigint_subtract(BigInt *x, BigInt *y)
+{
+    return NULL;
+}
+#endif

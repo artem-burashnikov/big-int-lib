@@ -47,7 +47,7 @@ int bigint_add_padding(BigInt *x, size_t new_length)
 
     for (i = old_length; i < new_length; ++i)
     {
-        x->digits[i] = '0';
+        x->digits[i] = 0;
     }
 
     return 0;
@@ -60,7 +60,7 @@ int bigint_normalize(BigInt *x)
     old_length = new_length = x->length;
     size_t i = new_length - 1;
 
-    while ((x->digits[i]) == ('0' - '0'))
+    while ((x->digits[i]) == 0)
     {
         --i;
     }

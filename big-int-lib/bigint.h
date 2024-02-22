@@ -4,11 +4,10 @@
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
 
-typedef struct
-{
-    bool is_negative;
-    size_t length;
-    char *digits;
+typedef struct {
+  bool sign;
+  size_t length;
+  char *digits;
 } BigInt;
 
 /* Initialize a new BigInt structure. */
@@ -18,11 +17,13 @@ BigInt *bigint_init(void);
 int bifree(BigInt *x);
 
 /* Pad to right with zeroes.
-   Return 0 if the memory reallocation was successful, 1 if something went wrong. */
+   Return 0 if the memory reallocation was successful, 1 if something went
+   wrong. */
 int bigint_add_padding(BigInt *x, size_t new_length);
 
 /* Remove leading zeroes.
-   Return 0 if the memory reallocation was successful, 1 if something went wrong. */
+   Return 0 if the memory reallocation was successful, 1 if something went
+   wrong. */
 int bigint_normalize(BigInt *x);
 
 /* Return a pointer to a new BigInt structure of the specified length. */
@@ -35,11 +36,14 @@ BigInt *str_to_bigint(char *str);
 char *bigint_to_str(const BigInt *x);
 
 /* Compare two big integers.
-   Return 0 if identical, 1 if different. */
+   Return 0 if x = y, 1 otherwise. */
 int bigint_cmp(const BigInt *x, const BigInt *y);
 
-/* Return 0 if x >= y, 1 otherwise. */
-int bigint_max(const BigInt *x, const BigInt *y);
+/* Return 0 if |x| >= |y|, 1 otherwise. */
+int bigint_max_abs(const BigInt *x, const BigInt *y);
+
+/* Return 1 if x > 0, return -1 if x < 0, return 0 if x = 0. */
+int sgn(const BigInt *x);
 
 /* Return the sum of two big integers. */
 BigInt *bigint_sum(const BigInt *x, const BigInt *y);

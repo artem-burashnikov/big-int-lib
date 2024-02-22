@@ -1,7 +1,7 @@
 #include "bigint.h"
-#include <string.h>
-#include <stdlib.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 BigInt *bigint_init()
 {
@@ -21,6 +21,62 @@ int bifree(BigInt *x)
 {
     free(x->digits);
     free(x);
+    return 0;
+}
+
+int bigint_add_padding(BigInt *x, size_t new_length)
+{
+    char *tmp;
+    size_t old_length = x->length;
+    size_t i;
+
+    if ((new_length - old_length) <= 0)
+    {
+        return 1;
+    }
+
+    tmp = realloc(x->digits, sizeof(char) * new_length);
+
+    if (tmp == NULL)
+    {
+        return 1;
+    }
+
+    x->digits = tmp;
+    x->length = new_length;
+
+    for (i = old_length; i < new_length; ++i)
+    {
+        x->digits[i] = '0';
+    }
+
+    return 0;
+}
+
+int bigint_normalize(BigInt *x)
+{
+    char *tmp;
+    size_t old_length, new_length;
+    old_length = new_length = x->length;
+    size_t i = new_length - 1;
+
+    while ((x->digits[i]) == ('0' - '0'))
+    {
+        --i;
+    }
+
+    new_length = i + 1;
+
+    tmp = realloc(x->digits, sizeof(char) * new_length);
+
+    if (tmp == NULL)
+    {
+        return 1;
+    }
+
+    x->digits = tmp;
+    x->length = new_length;
+
     return 0;
 }
 
@@ -75,10 +131,10 @@ BigInt *str_to_bigint(char *str)
         return NULL;
     }
 
+    /* If the first character in a string is a sign,
+       the number of digits is less than the string's length. */
     if ((len > 1) && (str[0] == '-'))
     {
-        /* If the first character in a string is a sign,
-           the number of digits is less than the string's length. */
         digits_cnt--;
         sign = true;
     }

@@ -32,25 +32,28 @@ BigInt *bigint_from_size(size_t length);
 BigInt *str_to_bigint(char *str);
 
 /* Convert from BigInt to string base 10. */
-char *bigint_to_str(BigInt *x);
+char *bigint_to_str(const BigInt *x);
 
 /* Compare two big integers.
    Return 0 if identical, 1 if different. */
-int bigint_cmp(BigInt *x, BigInt *y);
+int bigint_cmp(const BigInt *x, const BigInt *y);
+
+/* Return 0 if x >= y, 1 otherwise. */
+int bigint_max(const BigInt *x, const BigInt *y);
 
 /* Return the sum of two big integers. */
-BigInt *bigint_sum(BigInt *x, BigInt *y);
+BigInt *bigint_sum(const BigInt *x, const BigInt *y);
 
 /* Return the difference of two big integers. */
-BigInt *bigint_subtract(BigInt *x, BigInt *y);
+BigInt *bigint_subtract(const BigInt *x, const BigInt *y);
 
 /* Return the product of two big integers. */
-BigInt *bigint_mul(BigInt *x, BigInt *y);
+BigInt *bigint_mul(const BigInt *x, const BigInt *y);
 
 /* Perform an integer division of two big integers. */
-BigInt *bigint_div(BigInt *x, BigInt *y);
+BigInt *bigint_div(const BigInt *x, const BigInt *y);
 
 /* Perform a modulo division of two big integers. */
-BigInt *bigint_mod(BigInt *x, BigInt *y);
+BigInt *bigint_mod(const BigInt *x, const BigInt *y);
 
 #endif /* BIGINT_H_ */

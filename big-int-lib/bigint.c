@@ -19,8 +19,12 @@ BigInt *bigint_init()
 
 int bifree(BigInt *x)
 {
-    free(x->digits);
-    free(x);
+    if (x != NULL)
+    {
+        free(x->digits);
+        free(x);
+    }
+
     return 0;
 }
 
@@ -29,6 +33,11 @@ int bigint_add_padding(BigInt *x, size_t new_length)
     char *tmp;
     size_t old_length = x->length;
     size_t i;
+
+    if (x == NULL)
+    {
+        return 1;
+    }
 
     if ((new_length - old_length) <= 0)
     {
@@ -56,9 +65,15 @@ int bigint_add_padding(BigInt *x, size_t new_length)
 int bigint_normalize(BigInt *x)
 {
     char *tmp;
-    size_t old_length, new_length;
+    size_t old_length, new_length, i;
+
+    if (x == NULL)
+    {
+        return 1;
+    }
+
     old_length = new_length = x->length;
-    size_t i = new_length - 1;
+    i = new_length - 1;
 
     while ((x->digits[i]) == 0)
     {
@@ -67,15 +82,18 @@ int bigint_normalize(BigInt *x)
 
     new_length = i + 1;
 
-    tmp = realloc(x->digits, sizeof(char) * new_length);
-
-    if (tmp == NULL)
+    if (new_length != old_length)
     {
-        return 1;
-    }
+        tmp = realloc(x->digits, sizeof(char) * new_length);
 
-    x->digits = tmp;
-    x->length = new_length;
+        if (tmp == NULL)
+        {
+            return 1;
+        }
+
+        x->digits = tmp;
+        x->length = new_length;
+    }
 
     return 0;
 }
@@ -115,6 +133,11 @@ BigInt *str_to_bigint(char *str)
     bool sign;
     size_t i;
     char c;
+
+    if (str == NULL)
+    {
+        return NULL;
+    }
 
     len = strlen(str);
     digits_cnt = len;
@@ -164,12 +187,18 @@ BigInt *str_to_bigint(char *str)
     return x;
 }
 
-char *bigint_to_str(BigInt *x)
+char *bigint_to_str(const BigInt *x)
 {
     char *str;
-    size_t str_len = x->length;
-    size_t num_digits = x->length;
-    size_t i, j;
+    size_t str_len, num_digits, i, j;
+
+    if (x == NULL)
+    {
+        return NULL;
+    }
+
+    str_len = x->length;
+    num_digits = x->length;
     i = j = 0;
 
     if (x->is_negative)
@@ -202,42 +231,93 @@ char *bigint_to_str(BigInt *x)
     return str;
 }
 
-int bigint_cmp(BigInt *x, BigInt *y)
+int bigint_cmp(const BigInt *x, const BigInt *y) /* Needs NULL-check? */
 {
     size_t len;
-    int ret = 0;
 
     if ((x->length) != (y->length))
     {
-        ret = 1;
+        return 1;
     }
     else if ((x->is_negative) != (y->is_negative))
     {
-        ret = 1;
+        return 1;
     }
     else
     {
-        /* Both length values are identical at this point. */
+        /* Both lengthes are identical at this point. */
         len = x->length;
         for (size_t i = 0; i < len; ++i)
         {
             if ((x->digits[i]) != (y->digits[i]))
             {
-                ret = 1;
-                break;
+                return 1;
             }
         }
+    }
+
+    return 0;
+}
+
+int bigint_max(const BigInt *x, const BigInt *y) /* Needs NULL-check? */
+{
+    int ret;
+    size_t i, len;
+
+    if (bigint_cmp(x, y) == 0)
+    {
+        return 0;
+    }
+
+    /* max(-x, y) = 1 */
+    if ((x->is_negative) && (!(y->is_negative)))
+    {
+        ret = 1;
+    }
+    /* max(x, -y) = 0 */
+    else if ((!(x->is_negative)) && (y->is_negative))
+    {
+        ret = 0;
+    }
+    else if (x->length < y->length)
+    {
+        ret = 1;
+    }
+    else if (x->length == y->length)
+    {
+        len = x->length;
+        i = len - 1;
+        while (x->digits[i] == y->digits[i])
+        {
+            --i;
+        }
+
+        if (x->digits[i] < y->digits[i])
+        {
+            ret = 1;
+        }
+    }
+    else
+    {
+        ret = 0;
     }
 
     return ret;
 }
 
-#if 0
-BigInt *bigint_add(BigInt *x, BigInt *y)
+BigInt *bigint_sum(const BigInt *x, const BigInt *y)
 {
     BigInt *res;
-    bool sign = false;
-    size_t i, j;
+    bool sign;
+    char sum, carry;
+    size_t i, j, max_length, min_length;
+
+    if ((x == NULL) || (y == NULL))
+    {
+        return NULL;
+    }
+
+    sign = false;
 
     /* x + (-y) = x - y */
     if ((!(x->is_negative)) && (y->is_negative))
@@ -257,7 +337,19 @@ BigInt *bigint_add(BigInt *x, BigInt *y)
         sign = true;
     }
 
-    res = bigint_init();
+    if (x->length >= y->length)
+    {
+        max_length = x->length;
+        min_length = y->length;
+    }
+    else
+    {
+        max_length = y->length;
+        min_length = x->length;
+    }
+
+    /* +1 for possible carry. */
+    res = bigint_from_size(max_length + 1);
 
     if (res == NULL)
     {
@@ -266,11 +358,49 @@ BigInt *bigint_add(BigInt *x, BigInt *y)
 
     res->is_negative = sign;
 
-    return NULL;
+    carry = 0;
+    for (i = 0; i < min_length; ++i)
+    {
+        sum = x->digits[i] + y->digits[i] + carry;
+        res->digits[i] = sum % 10;
+        carry = sum / 10;
+    }
+
+    for (j = min_length; j < max_length; ++j)
+    {
+        if (max_length == x->length)
+        {
+            sum = x->digits[j] + carry;
+        }
+        else
+        {
+            sum = y->digits[j] + carry;
+        }
+
+        res->digits[j] = sum % 10;
+        carry = sum / 10;
+    }
+
+    if (carry != 0)
+    {
+        res->digits[res->length - 1] = carry;
+    }
+    else
+    {
+        res->digits[res->length - 1] = 0;
+    }
+
+    if (bigint_normalize(res) == 0)
+    {
+        return res;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
-BigInt *bigint_subtract(BigInt *x, BigInt *y)
+BigInt *bigint_subtract(const BigInt *x, const BigInt *y)
 {
     return NULL;
 }
-#endif

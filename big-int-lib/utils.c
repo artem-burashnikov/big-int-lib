@@ -1,6 +1,6 @@
-#include "bigint.h"
-
 #include <stdlib.h>
+
+#include "bigint.h"
 
 int bigint_add_padding(BigInt *x, size_t new_length) {
   char *tmp;

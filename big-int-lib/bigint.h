@@ -4,8 +4,10 @@
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
 
+typedef enum { positive = 0, negative = 1 } Sign;
+
 typedef struct {
-  bool sign;
+  Sign sign;
   size_t length;
   char *digits;
 } BigInt;

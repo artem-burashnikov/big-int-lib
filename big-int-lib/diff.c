@@ -1,6 +1,6 @@
-#include "bigint.h"
-
 #include <stdlib.h>
+
+#include "bigint.h"
 
 BigInt *bigint_subtract(const BigInt *x, const BigInt *y) {
   BigInt *tmp, *res;

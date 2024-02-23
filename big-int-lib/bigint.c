@@ -23,12 +23,12 @@ int bifree(BigInt *x) {
 BigInt *bigint_from_size(size_t length) {
   BigInt *x = bigint_init();
 
-  if (x == NULL) {
+  if ((length == 0) || (x == NULL)) {
     return NULL;
   }
 
   x->length = length;
-  x->sign = false;
+  x->sign = positive;
 
   x->digits = malloc(sizeof(char) * length);
   if (x->digits != NULL) {
@@ -39,15 +39,11 @@ BigInt *bigint_from_size(size_t length) {
   }
 }
 
-/* Assume base 10 */
+/* Assume base 10. */
 BigInt *str_to_bigint(char *str) {
   BigInt *x;
-  /* Length of the input string. */
-  size_t len;
-  /* Actual significant digits count. */
-  size_t digits_cnt;
-  bool sign;
-  size_t i;
+  size_t len, i, digits_cnt;
+  Sign sign;
   char c;
 
   if (str == NULL) {
@@ -62,6 +58,18 @@ BigInt *str_to_bigint(char *str) {
     return NULL;
   }
 
+  if ((len == 1) && (str[0] == '0')) {
+    x = bigint_from_size(len);
+
+    if (x == NULL) {
+      return NULL;
+    }
+
+    x->sign = positive;
+    x->digits[0] = '0' - '0';
+    return x;
+  }
+
   /* String only contains a sign. */
   if ((len == 1) && ((str[0] == '-') || (str[0] == '+'))) {
     return NULL;
@@ -71,9 +79,15 @@ BigInt *str_to_bigint(char *str) {
      the number of digits is less than the string's length. */
   if ((len > 1) && (str[0] == '-')) {
     digits_cnt--;
-    sign = true;
+    sign = negative;
   } else if (len > 1) {
-    sign = false;
+    sign = positive;
+  }
+
+  i = sign;
+  /* Ignore leading zeroes. */
+  while ((c = str[i++]) == '0') {
+    --digits_cnt;
   }
 
   x = bigint_from_size(digits_cnt);
@@ -87,6 +101,7 @@ BigInt *str_to_bigint(char *str) {
   for (i = 0; i < digits_cnt; ++i) {
     c = str[len - 1 - i];
 
+    /* Only numeric strings are allowed. */
     if ((c >= '0') && (c <= '9')) {
       x->digits[i] = c - '0';
     } else {
@@ -100,35 +115,29 @@ BigInt *str_to_bigint(char *str) {
 
 char *bigint_to_str(const BigInt *x) {
   char *str;
-  size_t str_len, num_digits, i, j;
+  size_t str_len, i;
 
   if (x == NULL) {
     return NULL;
   }
 
-  str_len = x->length;
-  num_digits = x->length;
-  i = j = 0;
-
-  if (x->sign) {
-    ++str_len;
-  }
-
-  str = calloc(str_len + 1, sizeof(char));
+  /* +1 for terminator character '\0' */
+  str_len = x->length + x->sign + 1;
+  str = calloc(str_len, sizeof(char));
 
   if (str == NULL) {
     return NULL;
   }
 
-  if (x->sign) {
+  if (x->sign == negative) {
     str[0] = '-';
   }
 
   for (i = 0; i < x->length; ++i) {
-    str[i] = x->digits[num_digits - 1 - i] + '0';
+    str[x->length + x->sign - 1 - i] = x->digits[i] + '0';
   }
 
-  str[i] = '\0';
+  str[str_len - 1] = '\0';
 
   return str;
 }

@@ -1,37 +1,7 @@
+#include <assert.h>
 #include <stdlib.h>
 
 #include "bigint.h"
-
-int bigint_add_padding(BigInt *x, size_t new_length) {
-  char *tmp;
-  size_t old_length;
-  size_t i;
-
-  if (x == NULL) {
-    return 1;
-  }
-
-  old_length = x->length;
-
-  if ((new_length - old_length) <= 0) {
-    return 1;
-  }
-
-  tmp = realloc(x->digits, sizeof(char) * new_length);
-
-  if (tmp == NULL) {
-    return 1;
-  }
-
-  x->digits = tmp;
-  x->length = new_length;
-
-  for (i = old_length; i < new_length; ++i) {
-    x->digits[i] = 0;
-  }
-
-  return 0;
-}
 
 int bigint_normalize(BigInt *x) {
   char *tmp;
@@ -42,15 +12,32 @@ int bigint_normalize(BigInt *x) {
   }
 
   old_length = new_length = x->length;
-  i = new_length - 1;
 
-  while ((x->digits[i--]) == 0) {
-    ;
+  while ((new_length > 0) && ((x->digits[new_length - 1]) == ('0' - '0'))) {
+    --new_length;
   }
 
-  new_length = i + 1;
+  if (new_length == 0) {
+    x->length = 1;
+    free(x->digits);
+    x->digits = calloc(1, sizeof(char));
+
+    if (x->digits == NULL) {
+      return 1;
+    }
+    
+    x->digits[0] = '0' - '0';
+
+    return 0;
+  }
+
+  assert(new_length > 0);
 
   if (new_length != old_length) {
+    for (i = old_length - 1; i >= new_length; --i) {
+      assert(x->digits[i] == ('0' - '0'));
+    }
+
     tmp = realloc(x->digits, sizeof(char) * new_length);
 
     if (tmp == NULL) {
@@ -62,16 +49,6 @@ int bigint_normalize(BigInt *x) {
   }
 
   return 0;
-}
-
-int sgn(const BigInt *x) {
-  if (x->sign) {
-    return -1;
-  } else if ((!x->sign) && (x->length == 1) && (x->digits[0] == 0)) {
-    return 0;
-  } else {
-    return 1;
-  }
 }
 
 int bigint_cmp(const BigInt *x, const BigInt *y) /* Needs NULL-check? */

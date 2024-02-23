@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 
 #include "bigint.h"
 
@@ -32,109 +33,56 @@ BigInt *bigint_sum(const BigInt *x, const BigInt *y) {
 
   carry = 0;
 
-  for (i = 0; i <= max_length; ++i) {
-    if ((i < x->length) && (i < y->length)) {
-      sum = x->digits[i] - y->digits[i] + carry;
-      carry = 0;
+  assert(x->length >= y->length);
 
-      if (x->sign != y->sign) {
-        if (sum < 0) {
-          sum += 10;
-          carry = -1;
-        }
-      } else if (x->sign == y->sign) {
-        if (sum >= 10) {
-          sum -= 10;
-          carry = 1;
-        }
+  for (i = 0; i < max_length; ++i) {
+    sum = x->digits[i] + carry;
+    carry = 0;
+
+    if (x->sign != y->sign) {
+      if (i < y->length) {
+        sum = sum - y->digits[i];
       }
-
-    } else if ((i < x->length) && (i >= y->length)) {
-      sum = x->digits[i] + carry;
-      carry = 0;
-
-      if (x->sign != y->sign) {
-        if (sum < 0) {
-          sum += 10;
-          carry = -1;
-        }
-
-      } else if (x->sign == y->sign) {
-        if (sum >= 10) {
-          sum -= 10;
-          carry = 1;
-        }
-      }
-
-    } else if ((i >= x->length) && (i >= y->length)) {
-      assert(carry >= 0);
-
-      assert(x->length >= y->length);
-
-      if (x->length == y->length) {
-        assert(x->digits[i] >= y->digits[i]);
-      }
-
-      sum = carry;
-    }
-
-    res->digits[i] = sum;
-  }
-#if 0
-    if ((i < x->length) && (i < y->length)) {
-      sum = sgn_x * (x->digits[i]) + sgn_y * (y->digits[i]) + carry;
-    } else if ((i < x->length) && (i >= y->length)) {
-      sum = sgn_x * (x->digits[i]) + carry;
-    } else if ((i >= x->length) && (i < y->length)) {
-      sum = sgn_y * (y->digits[i]) + carry;
-    } else {
-      sum = carry;
-    }
-
-    if (!x->sign && !y->sign) {
-      if (sum >= 10) {
-        sum = sum % 10;
-        carry = 1;
-      } else if ((sum > 0) && (sum < 10)) {
-        sum = sum % 10;
-        carry = 0;
-      }
-    }
-    if (!x->sign && y->sign) {
       if (sum < 0) {
-        sum = (sum + 10);
+        sum += 10;
         carry = -1;
-      } else if (sum >= 0) {
-        carry = 0;
       }
-    }
-    if (x->sign && y->sign) {
-      if (sum <= -10) {
-        sum = (-sum) % 10;
-        carry = -1;
-      } else if ((sum > -10) && (sum <= 0)) {
-        sum = (-sum) % 10;
-        carry = 0;
+    } else if (x->sign == y->sign) {
+      if (i < y->length) {
+        sum = sum + y->digits[i];
       }
-    } else if (x->sign && !y->sign) {
-      if (sum > 0) {
-        sum = (-sum + 10) % 10;
-        carry = -1;
-      } else if (sum == 0) {
-        carry = 0;
-      } else if (sum < 0) {
-        sum = (-sum) % 10;
-        carry = 0;
+      if (sum >= 10) {
+        sum -= 10;
+        carry = 1;
       }
     }
 
     res->digits[i] = sum;
-
   }
-#endif
-  if (bigint_normalize(res) == 0) {
-    return res;
-  } else {
+
+  assert(i == max_length);
+  assert(carry >= 0);
+
+  res->digits[i] = carry;
+
+  bigint_normalize(res);
+
+  if (res == NULL) {
     return NULL;
   }
+
+  if ((res->length == 1) && (res->digits[0] == ('0' - '0'))) {
+    free(res->digits);
+    res->digits = calloc(1, sizeof(char));
+
+    if (res->digits == NULL) {
+      return NULL;
+    }
+    
+    res->digits[0] = '0' - '0';
+    res->sign = positive;
+
+  }
+
+  return res;
 }

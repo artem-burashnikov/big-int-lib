@@ -1,5 +1,6 @@
 #include "bigint.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -71,16 +72,16 @@ BigInt *str_to_bigint(char *str) {
   }
 
   /* String only contains a sign. */
-  if ((len == 1) && ((str[0] == '-') || (str[0] == '+'))) {
+  if ((len == 1) && ((str[0] == '-') || ((len == 1) && (str[0] == '+')))) {
     return NULL;
   }
 
   /* If the first character in a string is a sign,
      the number of digits is less than the string's length. */
-  if ((len > 1) && (str[0] == '-')) {
+  if ((len > 0) && (str[0] == '-')) {
     digits_cnt--;
     sign = negative;
-  } else if (len > 1) {
+  } else if ((len > 0) && (str[0] != '-')) {
     sign = positive;
   }
 
@@ -89,6 +90,8 @@ BigInt *str_to_bigint(char *str) {
   while ((c = str[i++]) == '0') {
     --digits_cnt;
   }
+
+  assert(digits_cnt > 0);
 
   x = bigint_from_size(digits_cnt);
 

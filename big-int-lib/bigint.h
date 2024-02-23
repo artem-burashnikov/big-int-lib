@@ -18,11 +18,6 @@ BigInt *bigint_init(void);
 /* Free an allocated memory. */
 int bifree(BigInt *x);
 
-/* Pad to right with zeroes.
-   Return 0 if the memory reallocation was successful, 1 if something went
-   wrong. */
-int bigint_add_padding(BigInt *x, size_t new_length);
-
 /* Remove leading zeroes.
    Return 0 if the memory reallocation was successful, 1 if something went
    wrong. */

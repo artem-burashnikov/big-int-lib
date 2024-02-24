@@ -47,24 +47,14 @@ bigint_t *bigint_from_str(char *str) {
   }
 
   len = strlen(str);
-  digits_cnt = len;
 
-  /* Empry input string. */
   if (len == 0) {
     return NULL;
   }
 
-  if ((len == 1) && (str[0] == '0')) {
-    ap = bigint_from_size(len);
+  assert(len > 0);
 
-    if (ap == NULL) {
-      return NULL;
-    }
-
-    ap->sign = pos;
-    ap->digits[0] = '0' - '0';
-    return ap;
-  }
+  digits_cnt = len;
 
   /* String only contains a sign. */
   if ((len == 1) && ((str[0] == '-') || ((len == 1) && (str[0] == '+')))) {
@@ -73,16 +63,16 @@ bigint_t *bigint_from_str(char *str) {
 
   /* If the first character in a string is a sign,
      the number of digits is less than the string's length. */
-  if ((len > 0) && (str[0] == '-')) {
+  if ((str[0] == '-')) {
     digits_cnt--;
     sign = neg;
-  } else if ((len > 0) && (str[0] != '-')) {
+  } else {
     sign = pos;
   }
 
   i = sign;
-  /* Ignore leading zeroes. */
-  while ((c = str[i++]) == '0') {
+  /* Ignore leading zeroes. A single zero left is still a significant digit. */
+  while ((digits_cnt > 1) && ((c = str[i++]) == '0')) {
     --digits_cnt;
   }
 
@@ -98,8 +88,6 @@ bigint_t *bigint_from_str(char *str) {
 
   for (i = 0; i < digits_cnt; ++i) {
     c = str[len - 1 - i];
-
-    /* Only numeric strings are allowed. */
     if ((c >= '0') && (c <= '9')) {
       ap->digits[i] = c - '0';
     } else {

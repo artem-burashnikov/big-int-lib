@@ -47,7 +47,7 @@ int sgn(const bigint_t *ap);
 bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp);
 
 /* Return the difference of two big integers. */
-bigint_t *bigint_subt(const bigint_t *ap, const bigint_t *bp);
+bigint_t *bigint_sub(const bigint_t *ap, const bigint_t *bp);
 
 /* Return the product of two big integers. */
 bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp);

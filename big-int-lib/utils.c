@@ -48,7 +48,7 @@ int bigint_normalize(bigint_t *ap) {
   return 0;
 }
 
-int bigint_cmp(const bigint_t *ap, const bigint_t *bp) /* Needs NULL-check? */
+int bigint_cmp(const bigint_t *ap, const bigint_t *bp)
 {
   size_t i;
 
@@ -68,8 +68,7 @@ int bigint_cmp(const bigint_t *ap, const bigint_t *bp) /* Needs NULL-check? */
   return 0;
 }
 
-int bigint_max_abs(const bigint_t *ap, const bigint_t *bp) /* Needs NULL-check? */
-{
+int bigint_max_abs(const bigint_t *ap, const bigint_t *bp) {
   int ret;
   size_t i;
 

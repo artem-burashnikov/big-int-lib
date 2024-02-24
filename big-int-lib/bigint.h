@@ -5,6 +5,8 @@
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
 
+#define BASE 10
+
 typedef enum { pos = 0, neg = 1 } sign_t;
 
 typedef struct {

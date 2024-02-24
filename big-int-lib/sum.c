@@ -27,32 +27,24 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
 
   res->sign = ap->sign;
 
-  carry = 0;
-
   assert(ap->len >= bp->len);
 
-  for (i = 0; i < max_len; ++i) {
+  for (i = 0, carry = 0; i < max_len; ++i) {
     sum = ap->digits[i] + carry;
-    carry = 0;
-
+    
+    /* Bascically a subtraction if signs are different. */
     if (ap->sign != bp->sign) {
       if (i < bp->len) {
-        sum = sum - bp->digits[i];
+        carry = (sum - bp->digits[i]) / BASE;
+        sum = (sum - bp->digits[i]) % BASE;
       }
-      if (sum < 0) {
-        sum += 10;
-        carry = -1;
-      }
+    /* Actual addition if signs are equal. */
     } else if (ap->sign == bp->sign) {
       if (i < bp->len) {
-        sum = sum + bp->digits[i];
-      }
-      if (sum >= 10) {
-        sum -= 10;
-        carry = 1;
+        carry = (sum + bp->digits[i]) / BASE;
+        sum = (sum + bp->digits[i]) % BASE;
       }
     }
-
     res->digits[i] = sum;
   }
 

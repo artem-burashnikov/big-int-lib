@@ -172,10 +172,58 @@ MU_TEST(sum_tests) {
   bifree(inv_zero);
 }
 
+MU_TEST(sub_tests) {
+  bigint_t *a = bigint_from_str("234");
+  bigint_t *b = bigint_from_str("1234");
+  bigint_t *neg_b = bigint_from_str("-1234");
+  bigint_t *zero = bigint_from_str("0");
+  bigint_t *one = bigint_from_str("1");
+  bigint_t *neg_one = bigint_from_str("-1");
+
+  bigint_t *a_sub_b = bigint_sub(a, b);
+  char *str_a_sub_b = bigint_to_str(a_sub_b);
+  mu_check(a_sub_b->len == 4);
+  mu_check(a_sub_b->sign == neg);
+  mu_assert_string_eq("-1000", str_a_sub_b);
+
+  bigint_t *b_sub_a = bigint_sub(b, a);
+  char *str_b_sub_a = bigint_to_str(b_sub_a);
+  mu_check(b_sub_a->len == 4);
+  mu_check(b_sub_a->sign == pos);
+  mu_assert_string_eq("1000", str_b_sub_a);
+
+  /* 0 is neutral. */
+  bigint_t *zero_sub_zero = bigint_sum(zero, zero);
+  mu_check(bigint_cmp(zero_sub_zero, zero) == 0);
+
+  /* x - (-x) = x + x <> 0 */
+  bigint_t *b_sub_neg_b = bigint_sub(b, neg_b);
+  mu_check(bigint_cmp(zero, b_sub_neg_b) == 1);
+
+  bifree(zero);
+  bifree(one);
+  bifree(neg_one);
+
+  bifree(a);
+  bifree(b);
+  bifree(neg_b);
+
+  bifree(a_sub_b);
+  free(str_a_sub_b);
+  
+  bifree(b_sub_a);
+  free(str_b_sub_a);
+
+  bifree(zero_sub_zero);
+
+  bifree(b_sub_neg_b);
+}
+
 int main(int argc, char *argv[]) {
   MU_RUN_TEST(length_tests);
   MU_RUN_TEST(str_tests);
   MU_RUN_TEST(sum_tests);
+  MU_RUN_TEST(sub_tests);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

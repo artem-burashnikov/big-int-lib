@@ -1,50 +1,45 @@
 #include "bigint.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+bigint_t *bigint_init() {
+  bigint_t *ap = malloc(sizeof(bigint_t));
 
-BigInt *bigint_init() {
-  BigInt *x = malloc(sizeof(BigInt));
-
-  return x;
+  return ap;
 }
 
-int bifree(BigInt *x) {
-  if ((x != NULL) && (x->digits != NULL)) {
-    free(x->digits);
-    free(x);
-  } else if (x != NULL) {
-    free(x);
+int bifree(bigint_t *ap) {
+  if ((ap != NULL) && (ap->digits != NULL)) {
+    free(ap->digits);
+    free(ap);
+  } else if (ap != NULL) {
+    free(ap);
   }
 
   return 0;
 }
 
-BigInt *bigint_from_size(size_t length) {
-  BigInt *x = bigint_init();
+bigint_t *bigint_from_size(size_t len) {
+  bigint_t *ap = bigint_init();
 
-  if ((length == 0) || (x == NULL)) {
+  if ((len == 0) || (ap == NULL)) {
     return NULL;
   }
 
-  x->length = length;
-  x->sign = positive;
+  ap->len = len;
+  ap->sign = pos;
 
-  x->digits = malloc(sizeof(char) * length);
-  if (x->digits != NULL) {
-    return x;
+  ap->digits = malloc(sizeof(char) * len);
+  if (ap->digits != NULL) {
+    return ap;
   } else {
-    free(x);
+    free(ap);
     return NULL;
   }
 }
 
 /* Assume base 10. */
-BigInt *str_to_bigint(char *str) {
-  BigInt *x;
-  size_t len, i, digits_cnt;
-  Sign sign;
+bigint_t *bigint_from_str(char *str) {
+  bigint_t *ap;
+  size_t i, sign, len, digits_cnt;
   char c;
 
   if (str == NULL) {
@@ -60,15 +55,15 @@ BigInt *str_to_bigint(char *str) {
   }
 
   if ((len == 1) && (str[0] == '0')) {
-    x = bigint_from_size(len);
+    ap = bigint_from_size(len);
 
-    if (x == NULL) {
+    if (ap == NULL) {
       return NULL;
     }
 
-    x->sign = positive;
-    x->digits[0] = '0' - '0';
-    return x;
+    ap->sign = pos;
+    ap->digits[0] = '0' - '0';
+    return ap;
   }
 
   /* String only contains a sign. */
@@ -80,9 +75,9 @@ BigInt *str_to_bigint(char *str) {
      the number of digits is less than the string's length. */
   if ((len > 0) && (str[0] == '-')) {
     digits_cnt--;
-    sign = negative;
+    sign = neg;
   } else if ((len > 0) && (str[0] != '-')) {
-    sign = positive;
+    sign = pos;
   }
 
   i = sign;
@@ -93,51 +88,51 @@ BigInt *str_to_bigint(char *str) {
 
   assert(digits_cnt > 0);
 
-  x = bigint_from_size(digits_cnt);
+  ap = bigint_from_size(digits_cnt);
 
-  if (x == NULL) {
+  if (ap == NULL) {
     return NULL;
   }
 
-  x->sign = sign;
+  ap->sign = sign;
 
   for (i = 0; i < digits_cnt; ++i) {
     c = str[len - 1 - i];
 
     /* Only numeric strings are allowed. */
     if ((c >= '0') && (c <= '9')) {
-      x->digits[i] = c - '0';
+      ap->digits[i] = c - '0';
     } else {
-      bifree(x);
+      bifree(ap);
       return NULL;
     }
   }
 
-  return x;
+  return ap;
 }
 
-char *bigint_to_str(const BigInt *x) {
+char *bigint_to_str(const bigint_t *ap) {
   char *str;
   size_t str_len, i;
 
-  if (x == NULL) {
+  if (ap == NULL) {
     return NULL;
   }
 
   /* +1 for terminator character '\0' */
-  str_len = x->length + x->sign + 1;
+  str_len = ap->len + ap->sign + 1;
   str = calloc(str_len, sizeof(char));
 
   if (str == NULL) {
     return NULL;
   }
 
-  if (x->sign == negative) {
+  if (ap->sign == neg) {
     str[0] = '-';
   }
 
-  for (i = 0; i < x->length; ++i) {
-    str[x->length + x->sign - 1 - i] = x->digits[i] + '0';
+  for (i = 0; i < ap->len; ++i) {
+    str[ap->len + ap->sign - 1 - i] = ap->digits[i] + '0';
   }
 
   str[str_len - 1] = '\0';

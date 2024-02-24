@@ -1,55 +1,51 @@
-#include <assert.h>
-#include <stdlib.h>
-
 #include "bigint.h"
 
-BigInt *bigint_sum(const BigInt *x, const BigInt *y) {
-  BigInt *res;
-  size_t max_length;
-  size_t i;
-  int max_num;
-  int sum, carry;
+bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
+  bigint_t *res;
+  size_t i, max_len;
+  int max_num, sum, carry;
 
-  if ((x == NULL) || (y == NULL)) {
+  if ((ap == NULL) || (bp == NULL)) {
     return NULL;
   }
 
-  max_num = bigint_max_abs(x, y);
+  max_num = bigint_max_abs(ap, bp);
 
   if (max_num == 1) {
-    return bigint_sum(y, x);
+    return bigint_sum(bp, ap);
   }
 
   /* At this point |x| >= |y|. */
-  max_length = x->length;
+  max_len = ap->len;
 
-  res = bigint_from_size(max_length + 1);
+  /* +1 for possbile carry. */
+  res = bigint_from_size(max_len + 1);
 
   if (res == NULL) {
     return NULL;
   }
 
-  res->sign = x->sign;
+  res->sign = ap->sign;
 
   carry = 0;
 
-  assert(x->length >= y->length);
+  assert(ap->len >= bp->len);
 
-  for (i = 0; i < max_length; ++i) {
-    sum = x->digits[i] + carry;
+  for (i = 0; i < max_len; ++i) {
+    sum = ap->digits[i] + carry;
     carry = 0;
 
-    if (x->sign != y->sign) {
-      if (i < y->length) {
-        sum = sum - y->digits[i];
+    if (ap->sign != bp->sign) {
+      if (i < bp->len) {
+        sum = sum - bp->digits[i];
       }
       if (sum < 0) {
         sum += 10;
         carry = -1;
       }
-    } else if (x->sign == y->sign) {
-      if (i < y->length) {
-        sum = sum + y->digits[i];
+    } else if (ap->sign == bp->sign) {
+      if (i < bp->len) {
+        sum = sum + bp->digits[i];
       }
       if (sum >= 10) {
         sum -= 10;
@@ -60,7 +56,7 @@ BigInt *bigint_sum(const BigInt *x, const BigInt *y) {
     res->digits[i] = sum;
   }
 
-  assert(i == max_length);
+  assert(i == max_len);
   assert(carry >= 0);
 
   res->digits[i] = carry;
@@ -71,17 +67,8 @@ BigInt *bigint_sum(const BigInt *x, const BigInt *y) {
     return NULL;
   }
 
-  if ((res->length == 1) && (res->digits[0] == ('0' - '0'))) {
-    free(res->digits);
-    res->digits = calloc(1, sizeof(char));
-
-    if (res->digits == NULL) {
-      return NULL;
-    }
-    
-    res->digits[0] = '0' - '0';
-    res->sign = positive;
-
+  if ((res->len == 1) && (res->digits[0] == ('0' - '0'))) {
+    res->sign = pos;
   }
 
   return res;

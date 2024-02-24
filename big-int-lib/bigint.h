@@ -1,60 +1,61 @@
-#include <stdbool.h>
-#include <stddef.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
 
-typedef enum { positive = 0, negative = 1 } Sign;
+typedef enum { pos = 0, neg = 1 } sign_t;
 
 typedef struct {
-  Sign sign;
-  size_t length;
+  sign_t sign;
+  size_t len;
   char *digits;
-} BigInt;
+} bigint_t;
 
 /* Initialize a new BigInt structure. */
-BigInt *bigint_init(void);
+bigint_t *bigint_init(void);
 
 /* Free an allocated memory. */
-int bifree(BigInt *x);
+int bifree(bigint_t *ap);
 
 /* Remove leading zeroes.
    Return 0 if the memory reallocation was successful, 1 if something went
    wrong. */
-int bigint_normalize(BigInt *x);
+int bigint_normalize(bigint_t *ap);
 
 /* Return a pointer to a new BigInt structure of the specified length. */
-BigInt *bigint_from_size(size_t length);
+bigint_t *bigint_from_size(size_t len);
 
 /* Convert from string base 10 to BigInt. */
-BigInt *str_to_bigint(char *str);
+bigint_t *bigint_from_str(char *str);
 
 /* Convert from BigInt to string base 10. */
-char *bigint_to_str(const BigInt *x);
+char *bigint_to_str(const bigint_t *ap);
 
 /* Compare two big integers.
    Return 0 if x = y, 1 otherwise. */
-int bigint_cmp(const BigInt *x, const BigInt *y);
+int bigint_cmp(const bigint_t *ap, const bigint_t *bp);
 
 /* Return 0 if |x| >= |y|, 1 otherwise. */
-int bigint_max_abs(const BigInt *x, const BigInt *y);
+int bigint_max_abs(const bigint_t *ap, const bigint_t *bp);
 
 /* Return 1 if x > 0, return -1 if x < 0, return 0 if x = 0. */
-int sgn(const BigInt *x);
+int sgn(const bigint_t *ap);
 
 /* Return the sum of two big integers. */
-BigInt *bigint_sum(const BigInt *x, const BigInt *y);
+bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp);
 
 /* Return the difference of two big integers. */
-BigInt *bigint_subtract(const BigInt *x, const BigInt *y);
+bigint_t *bigint_subt(const bigint_t *ap, const bigint_t *bp);
 
 /* Return the product of two big integers. */
-BigInt *bigint_mul(const BigInt *x, const BigInt *y);
+bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp);
 
 /* Perform an integer division of two big integers. */
-BigInt *bigint_div(const BigInt *x, const BigInt *y);
+bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp);
 
 /* Perform a modulo division of two big integers. */
-BigInt *bigint_mod(const BigInt *x, const BigInt *y);
+bigint_t *bigint_mod(const bigint_t *ap, const bigint_t *bp);
 
-#endif /* BIGINT_H_ */
+#endif /* __BIGINT_H__ */

@@ -1,68 +1,65 @@
-#include <assert.h>
-#include <stdlib.h>
-
 #include "bigint.h"
 
-int bigint_normalize(BigInt *x) {
+int bigint_normalize(bigint_t *ap) {
   char *tmp;
-  size_t old_length, new_length, i;
+  size_t old_len, new_len, i;
 
-  if (x == NULL) {
+  if (ap == NULL) {
     return 1;
   }
 
-  old_length = new_length = x->length;
+  old_len = new_len = ap->len;
 
-  while ((new_length > 0) && ((x->digits[new_length - 1]) == ('0' - '0'))) {
-    --new_length;
+  while ((new_len > 0) && ((ap->digits[new_len - 1]) == ('0' - '0'))) {
+    --new_len;
   }
 
-  if (new_length == 0) {
-    x->length = 1;
-    free(x->digits);
-    x->digits = calloc(1, sizeof(char));
+  if (new_len == 0) {
+    ap->len = 1;
+    free(ap->digits);
+    ap->digits = calloc(1, sizeof(char));
 
-    if (x->digits == NULL) {
+    if (ap->digits == NULL) {
       return 1;
     }
-    
-    x->digits[0] = '0' - '0';
+
+    ap->digits[0] = '0' - '0';
 
     return 0;
   }
 
-  assert(new_length > 0);
+  assert(new_len > 0);
 
-  if (new_length != old_length) {
-    for (i = old_length - 1; i >= new_length; --i) {
-      assert(x->digits[i] == ('0' - '0'));
+  if (new_len != old_len) {
+    for (i = old_len - 1; i >= new_len; --i) {
+      assert(ap->digits[i] == ('0' - '0'));
     }
 
-    tmp = realloc(x->digits, sizeof(char) * new_length);
+    tmp = realloc(ap->digits, sizeof(char) * new_len);
 
     if (tmp == NULL) {
       return 1;
     }
 
-    x->digits = tmp;
-    x->length = new_length;
+    ap->digits = tmp;
+    ap->len = new_len;
   }
 
   return 0;
 }
 
-int bigint_cmp(const BigInt *x, const BigInt *y) /* Needs NULL-check? */
+int bigint_cmp(const bigint_t *ap, const bigint_t *bp) /* Needs NULL-check? */
 {
   size_t i;
 
-  if ((x->length) != (y->length)) {
+  if ((ap->len) != (bp->len)) {
     return 1;
-  } else if ((x->sign) != (y->sign)) {
+  } else if ((ap->sign) != (bp->sign)) {
     return 1;
   } else {
     /* Both lengthes are identical at this point. */
-    for (i = 0; i < x->length; ++i) {
-      if ((x->digits[i]) != (y->digits[i])) {
+    for (i = 0; i < ap->len; ++i) {
+      if ((ap->digits[i]) != (bp->digits[i])) {
         return 1;
       }
     }
@@ -71,18 +68,18 @@ int bigint_cmp(const BigInt *x, const BigInt *y) /* Needs NULL-check? */
   return 0;
 }
 
-int bigint_max_abs(const BigInt *x, const BigInt *y) /* Needs NULL-check? */
+int bigint_max_abs(const bigint_t *ap, const bigint_t *bp) /* Needs NULL-check? */
 {
   int ret;
   size_t i;
 
-  if ((x->length) < (y->length)) {
+  if ((ap->len) < (bp->len)) {
     ret = 1;
-  } else if ((x->length) > (y->length)) {
+  } else if ((ap->len) > (bp->len)) {
     ret = 0;
   } else {
-    for (i = 0; i < x->length; ++i) {
-      if ((x->digits[x->length - 1 - i]) < (y->digits[y->length - 1 - i])) {
+    for (i = 0; i < ap->len; ++i) {
+      if ((ap->digits[ap->len - 1 - i]) < (bp->digits[bp->len - 1 - i])) {
         ret = 1;
         break;
       } else {

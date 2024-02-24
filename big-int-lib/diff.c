@@ -1,11 +1,9 @@
-#include <stdlib.h>
-
 #include "bigint.h"
 
-BigInt *bigint_subtract(const BigInt *x, const BigInt *y) {
-  BigInt *tmp, *res;
+bigint_t *bigint_subtract(const bigint_t *ap, const bigint_t *bp) {
+  bigint_t *tmp, *res;
 
-  if ((x == NULL) || (y == NULL)) {
+  if ((ap == NULL) || (bp == NULL)) {
     return NULL;
   }
 
@@ -15,13 +13,13 @@ BigInt *bigint_subtract(const BigInt *x, const BigInt *y) {
     return NULL;
   }
 
-  tmp->sign = !(y->sign);
-  tmp->length = y->length;
-  tmp->digits = y->digits;
+  tmp->sign = !(bp->sign);
+  tmp->len = bp->len;
+  tmp->digits = bp->digits;
 
-  res = bigint_sum(x, tmp);
+  res = bigint_sum(ap, tmp);
 
-  free(tmp);
+  bifree(tmp);
 
   return res;
 }

@@ -5,7 +5,7 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
   size_t i, max_len;
   int max_num, sum, carry;
 
-  if ((ap == NULL) || (bp == NULL)) {
+  if ((ap == NULL) || (bp == NULL) || (ap->len == 0) || (bp->len == 0)) {
     return NULL;
   }
 
@@ -15,7 +15,8 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
     return bigint_sum(bp, ap);
   }
 
-  /* At this point |x| >= |y|. */
+  assert(ap->len >= bp->len);
+
   max_len = ap->len;
 
   /* +1 for possbile carry. */
@@ -31,14 +32,14 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
 
   for (i = 0, carry = 0; i < max_len; ++i) {
     sum = ap->digits[i] + carry;
-    
+
     /* Bascically a subtraction if signs are different. */
     if (ap->sign != bp->sign) {
       if (i < bp->len) {
         carry = (sum - bp->digits[i]) / BASE;
         sum = (sum - bp->digits[i]) % BASE;
       }
-    /* Actual addition if signs are equal. */
+      /* Actual addition if signs are equal. */
     } else if (ap->sign == bp->sign) {
       if (i < bp->len) {
         carry = (sum + bp->digits[i]) / BASE;

@@ -48,8 +48,7 @@ int bigint_normalize(bigint_t *ap) {
   return 0;
 }
 
-int bigint_cmp(const bigint_t *ap, const bigint_t *bp)
-{
+int bigint_cmp(const bigint_t *ap, const bigint_t *bp) {
   size_t i;
 
   if ((ap->len) != (bp->len)) {

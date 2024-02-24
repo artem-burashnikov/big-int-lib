@@ -210,7 +210,7 @@ MU_TEST(sub_tests) {
 
   bifree(a_sub_b);
   free(str_a_sub_b);
-  
+
   bifree(b_sub_a);
   free(str_b_sub_a);
 
@@ -219,11 +219,104 @@ MU_TEST(sub_tests) {
   bifree(b_sub_neg_b);
 }
 
+MU_TEST(mul_tests) {
+  bigint_t *a = bigint_from_str("245");
+  bigint_t *b = bigint_from_str("103");
+  bigint_t *c = bigint_from_str("32");
+  bigint_t *neg_b = bigint_from_str("-103");
+  bigint_t *zero = bigint_from_str("0");
+  bigint_t *one = bigint_from_str("1");
+  bigint_t *neg_one = bigint_from_str("-1");
+
+  bigint_t *a_mul_b = bigint_mul(a, b);
+  char *str_a_mul_b = bigint_to_str(a_mul_b);
+  mu_check(a_mul_b->len == 5);
+  mu_check(a_mul_b->sign == pos);
+  mu_assert_string_eq("25235", str_a_mul_b);
+
+  bigint_t *b_mul_c = bigint_mul(b, c);
+  char *str_b_mul_c = bigint_to_str(b_mul_c);
+  mu_check(b_mul_c->len == 4);
+  mu_check(b_mul_c->sign == pos);
+  mu_assert_string_eq("3296", str_b_mul_c);
+
+  bigint_t *b_mul_a = bigint_mul(b, a);
+  char *str_b_mul_a = bigint_to_str(b_mul_a);
+  mu_check(b_mul_a->len == 5);
+  mu_check(b_mul_a->sign == pos);
+  mu_assert_string_eq("25235", str_b_mul_a);
+
+  bigint_t *a_mul_b_mul_c1 = bigint_mul(a_mul_b, c);
+  char *str_a_mul_b_mul_c1 = bigint_to_str(a_mul_b_mul_c1);
+  mu_check(a_mul_b_mul_c1->len == 6);
+  mu_check(a_mul_b_mul_c1->sign == pos);
+  mu_assert_string_eq("807520", str_a_mul_b_mul_c1);
+
+  bigint_t *a_mul_b_mul_c2 = bigint_mul(a, b_mul_c);
+  char *str_a_mul_b_mul_c2 = bigint_to_str(a_mul_b_mul_c2);
+  mu_check(a_mul_b_mul_c2->len == 6);
+  mu_check(a_mul_b_mul_c2->sign == pos);
+  mu_assert_string_eq("807520", str_a_mul_b_mul_c2);
+
+  bigint_t *one_mul_neg_one = bigint_mul(one, neg_one);
+  mu_check(one_mul_neg_one->len = 1);
+  mu_check(one_mul_neg_one->digits[0] == 1);
+  mu_check(one_mul_neg_one->sign == neg);
+
+  bigint_t *neg_one_mul_neg_one = bigint_mul(neg_one, neg_one);
+  mu_check(neg_one_mul_neg_one->len = 1);
+  mu_check(neg_one_mul_neg_one->digits[0] == 1);
+  mu_check(neg_one_mul_neg_one->sign == pos);
+
+  /* Commutativity. */
+  mu_check(bigint_cmp(a_mul_b, b_mul_a) == 0);
+
+  /* Associativity. */
+  mu_check(bigint_cmp(a_mul_b_mul_c1, a_mul_b_mul_c2) == 0);
+
+  /* 1 is neutral. */
+  bigint_t *a_mul_one = bigint_mul(a, one);
+  mu_check(bigint_cmp(a, a_mul_one) == 0);
+
+  bigint_t *one_mul_a = bigint_mul(one, a);
+  mu_check(bigint_cmp(one_mul_a, a) == 0);
+
+  bifree(a);
+  bifree(b);
+  bifree(neg_b);
+  bifree(c);
+  bifree(one);
+  bifree(neg_one);
+  bifree(zero);
+
+  bifree(a_mul_b);
+  free(str_a_mul_b);
+
+  bifree(b_mul_c);
+  free(str_b_mul_c);
+
+  bifree(b_mul_a);
+  free(str_b_mul_a);
+
+  bifree(a_mul_b_mul_c1);
+  free(str_a_mul_b_mul_c1);
+
+  bifree(a_mul_b_mul_c2);
+  free(str_a_mul_b_mul_c2);
+
+  bifree(one_mul_neg_one);
+  bifree(neg_one_mul_neg_one);
+
+  bifree(a_mul_one);
+  bifree(one_mul_a);
+}
+
 int main(int argc, char *argv[]) {
   MU_RUN_TEST(length_tests);
   MU_RUN_TEST(str_tests);
   MU_RUN_TEST(sum_tests);
   MU_RUN_TEST(sub_tests);
+  MU_RUN_TEST(mul_tests);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

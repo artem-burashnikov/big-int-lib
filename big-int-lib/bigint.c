@@ -70,8 +70,6 @@ bigint_t *bigint_from_str(char *str) {
     --digits_cnt;
   }
 
-  assert(digits_cnt > 0);
-
   ap = bigint_from_size(digits_cnt);
 
   if (ap == NULL) {

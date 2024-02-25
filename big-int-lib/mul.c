@@ -35,11 +35,6 @@ bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp) {
   res->sign = ap->sign ^ bp->sign;
 
   for (j = 0; j < bp->len; ++j) {
-    if (bp->digits[j] == 0) {
-      res->digits[j + ap->len] = 0;
-      continue;
-    }
-
     for (i = 0, carry = 0; i < ap->len; ++i) {
       sum = (ap->digits[i]) * (bp->digits[j]) + res->digits[i + j] + carry;
       res->digits[i + j] = sum % BASE;

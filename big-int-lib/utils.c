@@ -1,5 +1,39 @@
 #include "bigint.h"
 
+char *str_from_int(size_t i) {
+  size_t length;
+  char *str;
+  length = snprintf(NULL, 0, "%ld", i);
+  str = malloc(length + 1);
+  snprintf(str, length + 1, "%ld", i);
+  return str;
+}
+
+int bigint_add_padding(bigint_t *ap, size_t new_len) {
+  char *tmp;
+  size_t old_len = ap->len;
+  size_t i;
+
+  if ((new_len - old_len) <= 0) {
+    return 1;
+  }
+
+  tmp = realloc(ap->digits, sizeof(char) * new_len);
+
+  if (tmp == NULL) {
+    return 1;
+  }
+
+  ap->digits = tmp;
+  ap->len = new_len;
+
+  for (i = old_len; i < new_len; ++i) {
+    ap->digits[i] = 0;
+  }
+
+  return 0;
+}
+
 int bigint_normalize(bigint_t *ap) {
   char *tmp;
   size_t old_len, new_len, i;

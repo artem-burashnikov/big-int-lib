@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
@@ -26,11 +27,16 @@ int bifree(bigint_t *ap);
    wrong. */
 int bigint_normalize(bigint_t *ap);
 
+/* Pad right with zeroes. Return 0 if successfull. */
+int bigint_add_padding(bigint_t *ap, size_t new_len);
+
 /* Return a pointer to a new BigInt structure of the specified length. */
 bigint_t *bigint_from_size(size_t len);
 
 /* Convert from string base 10 to BigInt. */
 bigint_t *bigint_from_str(char *str);
+
+char *str_from_int(size_t i);
 
 /* Convert from BigInt to string base 10. */
 char *bigint_to_str(const bigint_t *ap);
@@ -59,6 +65,9 @@ bigint_t *bigint_mul_dec(const bigint_t *ap, const unsigned char d);
 
 /* Perform an integer division big integer and a 0 < d < 10. */
 bigint_t *bigint_div_dec(const bigint_t *ap, const unsigned char d);
+
+/* Perform an integer division of two big integers. */
+bigint_t *bigint_div_mod(const bigint_t *ap, const bigint_t *bp);
 
 /* Perform an integer division of two big integers. */
 bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp);

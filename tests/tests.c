@@ -173,24 +173,24 @@ MU_TEST(sum_tests) {
 }
 
 MU_TEST(sub_tests) {
-  bigint_t *a = bigint_from_str("234");
-  bigint_t *b = bigint_from_str("1234");
-  bigint_t *neg_b = bigint_from_str("-1234");
+  bigint_t *a = bigint_from_str("123");
+  bigint_t *b = bigint_from_str("95");
+  bigint_t *neg_b = bigint_from_str("-95");
   bigint_t *zero = bigint_from_str("0");
   bigint_t *one = bigint_from_str("1");
   bigint_t *neg_one = bigint_from_str("-1");
 
   bigint_t *a_sub_b = bigint_sub(a, b);
   char *str_a_sub_b = bigint_to_str(a_sub_b);
-  mu_check(a_sub_b->len == 4);
-  mu_check(a_sub_b->sign == neg);
-  mu_assert_string_eq("-1000", str_a_sub_b);
+  mu_check(a_sub_b->len == 2);
+  mu_check(a_sub_b->sign == pos);
+  mu_assert_string_eq("28", str_a_sub_b);
 
   bigint_t *b_sub_a = bigint_sub(b, a);
   char *str_b_sub_a = bigint_to_str(b_sub_a);
-  mu_check(b_sub_a->len == 4);
-  mu_check(b_sub_a->sign == pos);
-  mu_assert_string_eq("1000", str_b_sub_a);
+  mu_check(b_sub_a->len == 2);
+  mu_check(b_sub_a->sign == neg);
+  mu_assert_string_eq("-28", str_b_sub_a);
 
   /* 0 is neutral. */
   bigint_t *zero_sub_zero = bigint_sum(zero, zero);
@@ -311,12 +311,36 @@ MU_TEST(mul_tests) {
   bifree(one_mul_a);
 }
 
+MU_TEST(mul_dec_tests) {
+  bigint_t *a = bigint_from_str("245");
+  unsigned char d = 10;
+  bigint_t *res = bigint_mul_dec(a, d);
+
+  mu_check(bigint_cmp(res, bigint_from_str("2450")) == 0);
+
+  bifree(a);
+  bifree(res);
+}
+
+MU_TEST(div_dec_tests) {
+  bigint_t *a = bigint_from_str("245");
+  unsigned char d = 9;
+  bigint_t *res = bigint_div_dec(a, d);
+
+  mu_check(bigint_cmp(res, bigint_from_str("27")) == 0);
+
+  bifree(a);
+  bifree(res);
+}
+
 int main(int argc, char *argv[]) {
   MU_RUN_TEST(length_tests);
   MU_RUN_TEST(str_tests);
   MU_RUN_TEST(sum_tests);
   MU_RUN_TEST(sub_tests);
   MU_RUN_TEST(mul_tests);
+  MU_RUN_TEST(mul_dec_tests);
+  MU_RUN_TEST(div_dec_tests);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

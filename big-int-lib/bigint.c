@@ -27,7 +27,7 @@ bigint_t *bigint_from_size(size_t len) {
   ap->len = len;
   ap->sign = pos;
 
-  ap->digits = malloc(sizeof(char) * len);
+  ap->digits = calloc(len, sizeof(char));
   if (ap->digits != NULL) {
     return ap;
   } else {
@@ -42,13 +42,7 @@ bigint_t *bigint_from_str(char *str) {
   size_t i, sign, len, digits_cnt;
   char c;
 
-  if (str == NULL) {
-    return NULL;
-  }
-
-  len = strlen(str);
-
-  if (len == 0) {
+  if ((str == NULL) || ((len = strlen(str)) == 0)) {
     return NULL;
   }
 
@@ -107,7 +101,7 @@ char *bigint_to_str(const bigint_t *ap) {
     return NULL;
   }
 
-  /* +1 for terminator character '\0' */
+  /* +1 for str term '\0' */
   str_len = ap->len + ap->sign + 1;
   str = calloc(str_len, sizeof(char));
 

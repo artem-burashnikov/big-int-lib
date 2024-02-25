@@ -36,8 +36,14 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
     /* Bascically a subtraction if signs are different. */
     if (ap->sign != bp->sign) {
       if (i < bp->len) {
-        carry = (sum - bp->digits[i]) / BASE;
-        sum = (sum - bp->digits[i]) % BASE;
+        sum = sum - bp->digits[i];
+        carry = 0;
+        if (sum < 0) {
+          carry = -1;
+          sum += BASE;
+        }
+      } else {
+        carry = 0;
       }
       /* Actual addition if signs are equal. */
     } else if (ap->sign == bp->sign) {
@@ -60,7 +66,7 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
     return NULL;
   }
 
-  if ((res->len == 1) && (res->digits[0] == ('0' - '0'))) {
+  if ((res->len == 1) && (res->digits[0] == 0)) {
     res->sign = pos;
   }
 

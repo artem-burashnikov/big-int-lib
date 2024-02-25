@@ -25,10 +25,7 @@ bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp) {
 
   res->len = ap->len + bp->len;
 
-  res->digits = calloc(ap->len + bp->len, sizeof(char));
-
-  assert(res->len == ap->len + bp->len);
-  assert((sizeof(res->digits[0]) * (ap->len + bp->len)) == (ap->len + bp->len) * (sizeof(char)));
+  res->digits = calloc(res->len, sizeof(char));
 
   if (res->digits == NULL) {
     bifree(res);
@@ -47,11 +44,71 @@ bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp) {
       sum = (ap->digits[i]) * (bp->digits[j]) + res->digits[i + j] + carry;
       res->digits[i + j] = sum % BASE;
       carry = sum / BASE;
-      assert((carry >= 0) && (carry < BASE));
     }
 
     res->digits[j + ap->len] = carry;
   }
+
+  bigint_normalize(res);
+
+  return res;
+}
+
+bigint_t *bigint_mul_dec(const bigint_t *ap, const unsigned char d) {
+  bigint_t *res;
+  size_t i;
+  int sum, carry;
+
+  if ((ap == NULL) || (ap->len == 0)) {
+    return NULL;
+  }
+
+  if (d > 10) {
+    return NULL;
+  }
+
+  if ((d == 0) || (eq_zero(ap))) {
+    return bigint_from_str("0");
+  }
+
+  if (d == 1) {
+    res = bigint_from_size(ap->len);
+
+    if (res == NULL) {
+      return NULL;
+    }
+
+    res->sign = ap->sign;
+
+    res->digits = memcpy(res->digits, ap->digits, ap->len);
+
+    return res;
+  }
+
+  res = bigint_init();
+
+  if (res == NULL) {
+    return NULL;
+  }
+
+  res->len = ap->len + 1;
+
+  res->digits = calloc(res->len, sizeof(char));
+
+  if (res->digits == NULL) {
+    bifree(res);
+    return NULL;
+  }
+
+  res->sign = ap->sign;
+
+  for (i = 0, carry = 0; i < ap->len; ++i) {
+    sum = ap->digits[i] * d + res->digits[i] + carry;
+    res->digits[i] = sum % BASE;
+    carry = sum / BASE;
+  }
+
+  res->digits[ap->len] = carry;
 
   bigint_normalize(res);
 

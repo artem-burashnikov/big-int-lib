@@ -42,8 +42,8 @@ int bigint_cmp(const bigint_t *ap, const bigint_t *bp);
 /* Return 0 if |x| >= |y|, 1 otherwise. */
 int bigint_max_abs(const bigint_t *ap, const bigint_t *bp);
 
-/* Return 1 if x > 0, return -1 if x < 0, return 0 if x = 0. */
-int sgn(const bigint_t *ap);
+/* Return 1 if a is 0, else 0. */
+int eq_zero(const bigint_t *ap);
 
 /* Return the sum of two big integers. */
 bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp);
@@ -53,6 +53,12 @@ bigint_t *bigint_sub(const bigint_t *ap, const bigint_t *bp);
 
 /* Return the product of two big integers. */
 bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp);
+
+/* Multiply a big integer by a 0 <= d < 10. */
+bigint_t *bigint_mul_dec(const bigint_t *ap, const unsigned char d);
+
+/* Perform an integer division big integer and a 0 < d < 10. */
+bigint_t *bigint_div_dec(const bigint_t *ap, const unsigned char d);
 
 /* Perform an integer division of two big integers. */
 bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp);

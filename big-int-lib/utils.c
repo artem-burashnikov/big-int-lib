@@ -10,29 +10,15 @@ int bigint_normalize(bigint_t *ap) {
 
   old_len = new_len = ap->len;
 
-  while ((new_len > 0) && ((ap->digits[new_len - 1]) == ('0' - '0'))) {
+  while ((new_len - 1 > 0) && ((ap->digits[new_len - 1]) == 0)) {
     --new_len;
-  }
-
-  if (new_len == 0) {
-    ap->len = 1;
-    free(ap->digits);
-    ap->digits = calloc(1, sizeof(char));
-
-    if (ap->digits == NULL) {
-      return 1;
-    }
-
-    ap->digits[0] = '0' - '0';
-
-    return 0;
   }
 
   assert(new_len > 0);
 
   if (new_len != old_len) {
     for (i = old_len - 1; i >= new_len; --i) {
-      assert(ap->digits[i] == ('0' - '0'));
+      assert(ap->digits[i] == 0);
     }
 
     tmp = realloc(ap->digits, sizeof(char) * new_len);
@@ -87,4 +73,20 @@ int bigint_max_abs(const bigint_t *ap, const bigint_t *bp) {
     }
   }
   return ret;
+}
+
+int eq_zero(const bigint_t *ap) {
+  if (ap == NULL) {
+    return 0;
+  }
+
+  if (ap->digits == NULL) {
+    return 0;
+  }
+
+  if ((ap->len == 1) && (ap->digits[0] == 0)) {
+    return 1;
+  } else {
+    return 0;
+  }
 }

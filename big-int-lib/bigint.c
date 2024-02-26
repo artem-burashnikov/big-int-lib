@@ -119,3 +119,16 @@ char *bigint_to_str(const bigint_t *ap) {
 
   return str;
 }
+
+char *str_from_int(size_t i) {
+  size_t length;
+  char *str;
+  length = snprintf(NULL, 0, "%ld", i);
+  str = malloc(length + 1);
+  snprintf(str, length + 1, "%ld", i);
+  return str;
+}
+
+bigint_t *bigint_div_mod(const bigint_t *ap, const bigint_t *bp) {
+  return NULL;
+}

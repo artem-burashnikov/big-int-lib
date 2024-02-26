@@ -1,23 +1,23 @@
-#include "bigint.h"
+#include "utils.h"
 
-bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
+bigint_t *bigint_sum(const bigint_t *ptr_x, const bigint_t *ptr_y) {
   bigint_t *res;
   size_t i, max_len;
   int max_num, sum, carry;
 
-  if ((ap == NULL) || (bp == NULL) || (ap->len == 0) || (bp->len == 0)) {
+  if ((ptr_x == NULL) || (ptr_y == NULL) || (ptr_x->len == 0) || (ptr_y->len == 0)) {
     return NULL;
   }
 
-  max_num = bigint_max_abs(ap, bp);
+  max_num = bigint_max_abs(ptr_x, ptr_y);
 
-  if (max_num == 1) {
-    return bigint_sum(bp, ap);
+  if (max_num != 0) {
+    return bigint_sum(ptr_y, ptr_x);
   }
 
-  assert(ap->len >= bp->len);
+  assert(ptr_x->len >= ptr_y->len);
 
-  max_len = ap->len;
+  max_len = ptr_x->len;
 
   /* +1 for possbile carry. */
   res = bigint_from_size(max_len + 1);
@@ -26,17 +26,17 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
     return NULL;
   }
 
-  res->sign = ap->sign;
+  res->sign = ptr_x->sign;
 
-  assert(ap->len >= bp->len);
+  assert(ptr_x->len >= ptr_y->len);
 
   for (i = 0, carry = 0; i < max_len; ++i) {
-    sum = ap->digits[i] + carry;
+    sum = ptr_x->digits[i] + carry;
 
     /* Bascically a subtraction if signs are different. */
-    if (ap->sign != bp->sign) {
-      if (i < bp->len) {
-        sum = sum - bp->digits[i];
+    if (ptr_x->sign != ptr_y->sign) {
+      if (i < ptr_y->len) {
+        sum = sum - ptr_y->digits[i];
         carry = 0;
         if (sum < 0) {
           carry = -1;
@@ -46,10 +46,10 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
         carry = 0;
       }
       /* Actual addition if signs are equal. */
-    } else if (ap->sign == bp->sign) {
-      if (i < bp->len) {
-        carry = (sum + bp->digits[i]) / BASE;
-        sum = (sum + bp->digits[i]) % BASE;
+    } else if (ptr_x->sign == ptr_y->sign) {
+      if (i < ptr_y->len) {
+        carry = (sum + ptr_y->digits[i]) / BASE;
+        sum = (sum + ptr_y->digits[i]) % BASE;
       }
     }
     res->digits[i] = sum;

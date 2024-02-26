@@ -1,50 +1,59 @@
-#include "bigint.h"
+#include "utils.h"
 
-char *str_from_int(size_t i) {
-  size_t length;
-  char *str;
-  length = snprintf(NULL, 0, "%ld", i);
-  str = malloc(length + 1);
-  snprintf(str, length + 1, "%ld", i);
-  return str;
+int eq_zero(const bigint_t *ptr_x) {
+  if (ptr_x == NULL) {
+    return 0;
+  }
+
+  if (ptr_x->digits == NULL) {
+    return 0;
+  }
+
+  if ((ptr_x->len == 1) && (ptr_x->digits[0] == 0)) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
-int bigint_add_padding(bigint_t *ap, size_t new_len) {
+int bigint_add_padding(bigint_t *ptr_x, size_t new_len) {
   char *tmp;
-  size_t old_len = ap->len;
+  size_t old_len;
   size_t i;
+
+  old_len = ptr_x->len;
 
   if ((new_len - old_len) <= 0) {
     return 1;
   }
 
-  tmp = realloc(ap->digits, sizeof(char) * new_len);
+  tmp = realloc(ptr_x->digits, sizeof(char) * new_len);
 
   if (tmp == NULL) {
     return 1;
   }
 
-  ap->digits = tmp;
-  ap->len = new_len;
+  ptr_x->digits = tmp;
+  ptr_x->len = new_len;
 
   for (i = old_len; i < new_len; ++i) {
-    ap->digits[i] = 0;
+    ptr_x->digits[i] = 0;
   }
 
   return 0;
 }
 
-int bigint_normalize(bigint_t *ap) {
+int bigint_normalize(bigint_t *ptr_x) {
   char *tmp;
   size_t old_len, new_len, i;
 
-  if (ap == NULL) {
+  if (ptr_x == NULL) {
     return 1;
   }
 
-  old_len = new_len = ap->len;
+  old_len = new_len = ptr_x->len;
 
-  while ((new_len - 1 > 0) && ((ap->digits[new_len - 1]) == 0)) {
+  while ((new_len - 1 > 0) && ((ptr_x->digits[new_len - 1]) == 0)) {
     --new_len;
   }
 
@@ -52,33 +61,33 @@ int bigint_normalize(bigint_t *ap) {
 
   if (new_len != old_len) {
     for (i = old_len - 1; i >= new_len; --i) {
-      assert(ap->digits[i] == 0);
+      assert(ptr_x->digits[i] == 0);
     }
 
-    tmp = realloc(ap->digits, sizeof(char) * new_len);
+    tmp = realloc(ptr_x->digits, sizeof(char) * new_len);
 
     if (tmp == NULL) {
       return 1;
     }
 
-    ap->digits = tmp;
-    ap->len = new_len;
+    ptr_x->digits = tmp;
+    ptr_x->len = new_len;
   }
 
   return 0;
 }
 
-int bigint_cmp(const bigint_t *ap, const bigint_t *bp) {
+int bigint_cmp(const bigint_t *ptr_x, const bigint_t *ptr_y) {
   size_t i;
 
-  if ((ap->len) != (bp->len)) {
+  if ((ptr_x->len) != (ptr_y->len)) {
     return 1;
-  } else if ((ap->sign) != (bp->sign)) {
+  } else if ((ptr_x->sign) != (ptr_y->sign)) {
     return 1;
   } else {
     /* Both lengthes are identical at this point. */
-    for (i = 0; i < ap->len; ++i) {
-      if ((ap->digits[i]) != (bp->digits[i])) {
+    for (i = 0; i < ptr_x->len; ++i) {
+      if ((ptr_x->digits[i]) != (ptr_y->digits[i])) {
         return 1;
       }
     }
@@ -87,17 +96,19 @@ int bigint_cmp(const bigint_t *ap, const bigint_t *bp) {
   return 0;
 }
 
-int bigint_max_abs(const bigint_t *ap, const bigint_t *bp) {
+int bigint_max_abs(const bigint_t *ptr_x, const bigint_t *ptr_y) {
   int ret;
   size_t i;
 
-  if ((ap->len) < (bp->len)) {
+  if ((ptr_x->len) < (ptr_y->len)) {
     ret = 1;
-  } else if ((ap->len) > (bp->len)) {
+  } else if ((ptr_x->len) > (ptr_y->len)) {
     ret = 0;
   } else {
-    for (i = 0; i < ap->len; ++i) {
-      if ((ap->digits[ap->len - 1 - i]) < (bp->digits[bp->len - 1 - i])) {
+    assert(ptr_x->len == ptr_y->len);
+    for (i = 0; i < ptr_x->len; ++i) {
+      if ((ptr_x->digits[ptr_x->len - 1 - i]) <
+          (ptr_y->digits[ptr_y->len - 1 - i])) {
         ret = 1;
         break;
       } else {
@@ -107,20 +118,4 @@ int bigint_max_abs(const bigint_t *ap, const bigint_t *bp) {
     }
   }
   return ret;
-}
-
-int eq_zero(const bigint_t *ap) {
-  if (ap == NULL) {
-    return 0;
-  }
-
-  if (ap->digits == NULL) {
-    return 0;
-  }
-
-  if ((ap->len == 1) && (ap->digits[0] == 0)) {
-    return 1;
-  } else {
-    return 0;
-  }
 }

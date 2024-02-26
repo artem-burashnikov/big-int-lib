@@ -1,25 +1,20 @@
-#include "bigint.h"
+#include "utils.h"
 
-bigint_t *bigint_sub(const bigint_t *ap, const bigint_t *bp) {
+bigint_t *bigint_sub(const bigint_t *ptr_x, const bigint_t *ptr_y) {
   bigint_t *tmp, *res;
-
-  if ((ap == NULL) || (bp == NULL)) {
-    return NULL;
-  }
 
   tmp = bigint_init();
 
-  if (tmp == NULL) {
+  if ((ptr_x == NULL) || (ptr_y == NULL) || (tmp == NULL)) {
     return NULL;
   }
 
-  tmp->sign = !(bp->sign);
-  tmp->len = bp->len;
-  tmp->digits = bp->digits;
+  tmp->sign = !ptr_y->sign;
+  tmp->len = ptr_y->len;
+  tmp->digits = ptr_y->digits;
 
-  res = bigint_sum(ap, tmp);
+  res = bigint_sum(ptr_x, tmp);
 
-  /* Do not free digits, only the struct! */
   free(tmp);
 
   return res;

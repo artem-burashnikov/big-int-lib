@@ -12,20 +12,18 @@ Below is the default project structure.
 
 ```ignorelang
 big-int-lib/
-│
-├── include/
-│   └── (header files)
-│
-├── src/
+├── big-int-lib
 │   └── (source files)
-│
-├── tests/
+│   
+├── tests
 │   └── (test files)
 │
 ├── CMakeLists.txt
 ├── LICENSE
 └── README.md
 ```
+
+Source files have self explanatory names.
 
 ## Features
 
@@ -73,7 +71,8 @@ Open the terminal and follow these steps:
 3. Generate Makefile using CMake:
 
     ```sh
-    cmake .
+    mkdir build && cd build;
+    cmake ..
     ```
 
 4. Build a library:

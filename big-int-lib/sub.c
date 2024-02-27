@@ -1,3 +1,4 @@
+#include "bigint.h"
 #include "utils.h"
 
 bigint_t *bigint_sub(const bigint_t *ptr_x, const bigint_t *ptr_y) {

@@ -2,9 +2,9 @@
 #define __BIGINT_H__
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #define BASE 10
 
@@ -20,7 +20,7 @@ typedef struct {
 bigint_t *bigint_init(void);
 
 /* Free an allocated memory. */
-int bifree(bigint_t *ptr_x);
+void bifree(bigint_t *ptr_x);
 
 /* Return a pointer to a new BigInt structure of the specified length. */
 bigint_t *bigint_from_size(size_t len);
@@ -47,7 +47,7 @@ bigint_t *bigint_mul_dec(const bigint_t *ptr_x, const unsigned char d);
 bigint_t *bigint_div_dec(const bigint_t *ptr_x, const unsigned char d);
 
 /* Perform an integer division of two big integers. */
-bigint_t *bigint_div(const bigint_t *ptr_x, const bigint_t *ptr_y);
+bigint_t *bigint_div_mod(const bigint_t *ptr_x, const bigint_t *ptr_y);
 
 /* Perform a modulo division of two big integers. */
 bigint_t *bigint_mod(const bigint_t *ptr_x, const bigint_t *ptr_y);

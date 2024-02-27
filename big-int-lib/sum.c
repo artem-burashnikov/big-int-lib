@@ -1,3 +1,4 @@
+#include "bigint.h"
 #include "utils.h"
 
 bigint_t *bigint_sum(const bigint_t *ptr_x, const bigint_t *ptr_y) {
@@ -5,7 +6,8 @@ bigint_t *bigint_sum(const bigint_t *ptr_x, const bigint_t *ptr_y) {
   size_t i, max_len;
   int max_num, sum, carry;
 
-  if ((ptr_x == NULL) || (ptr_y == NULL) || (ptr_x->len == 0) || (ptr_y->len == 0)) {
+  if ((ptr_x == NULL) || (ptr_y == NULL) || (ptr_x->len == 0) ||
+      (ptr_y->len == 0)) {
     return NULL;
   }
 

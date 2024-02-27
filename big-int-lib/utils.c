@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include "bigint.h"
+
 int eq_zero(const bigint_t *ptr_x) {
   if (ptr_x == NULL) {
     return 0;
@@ -118,4 +120,20 @@ int bigint_max_abs(const bigint_t *ptr_x, const bigint_t *ptr_y) {
     }
   }
   return ret;
+}
+
+int bigint_shift_rigt(bigint_t *ap, size_t t) {
+  char *tmp;
+
+  if (t <= 0) {
+    return 0;
+  }
+
+  tmp = calloc(ap->len + t, sizeof(char));
+  memcpy(tmp + t, ap->digits, ap->len);
+  free(ap->digits);
+  ap->digits = tmp;
+  ap->len = ap->len + t;
+
+  return 0;
 }

@@ -21,4 +21,6 @@ int bigint_normalize(bigint_t *ap);
 /* Pad right with zeroes. Return 0 if successfull. */
 int bigint_add_padding(bigint_t *ap, size_t new_len);
 
+int bigint_shift_rigt(bigint_t *ap, size_t t);
+
 #endif /* __UTILS_H__ */

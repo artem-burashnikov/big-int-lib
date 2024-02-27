@@ -1,3 +1,4 @@
+#include "bigint.h"
 #include "utils.h"
 
 bigint_t *bigint_mul_dec(const bigint_t *ptr_x, const unsigned char d) {

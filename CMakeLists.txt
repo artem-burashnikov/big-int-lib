@@ -12,6 +12,7 @@ add_library(bigint STATIC
     big-int-lib/sum.c
     big-int-lib/utils.c
     big-int-lib/utils.h
+    ci/main.c
 )
 
 # Add the source files for the tests executable
@@ -34,3 +35,6 @@ set_target_properties(bigint PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_INCLUDE "${CMAK
 # Add compiler flags
 target_compile_options(bigint PRIVATE -Wall -g)
 target_compile_options(tests PRIVATE -Wall -g)
+
+enable_testing()
+add_test(NAME bigintlib_tests COMMAND tests)

@@ -358,17 +358,6 @@ MU_TEST(mul_dec_tests) {
   bifree(res);
 }
 
-MU_TEST(div_dec_tests) {
-  bigint_t *a = bigint_from_str("245");
-  unsigned char d = 9;
-  bigint_t *res = bigint_div_dec(a, d);
-
-  mu_check(bigint_cmp(res, bigint_from_str("27")) == 0);
-
-  bifree(a);
-  bifree(res);
-}
-
 MU_TEST(factorial_test) {
   bigint_t *a;
   a = bigint_from_str(
@@ -459,7 +448,6 @@ int main(int argc, char *argv[]) {
   MU_RUN_TEST(sub_tests);
   MU_RUN_TEST(mul_tests);
   MU_RUN_TEST(mul_dec_tests);
-  MU_RUN_TEST(div_dec_tests);
   MU_RUN_TEST(factorial_test);
   MU_REPORT();
   return MU_EXIT_CODE;

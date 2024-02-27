@@ -1,20 +1,19 @@
 #include "bigint.h"
 
+#include "utils.h"
+
 bigint_t *bigint_init() {
   bigint_t *ap = malloc(sizeof(bigint_t));
 
   return ap;
 }
 
-int bifree(bigint_t *ap) {
-  if ((ap != NULL) && (ap->digits != NULL)) {
-    free(ap->digits);
-    free(ap);
-  } else if (ap != NULL) {
-    free(ap);
+void bifree(bigint_t *ap) {
+  if (!ap) {
+    return;
   }
-
-  return 0;
+  free(ap->digits);
+  free(ap);
 }
 
 bigint_t *bigint_from_size(size_t len) {
@@ -127,8 +126,4 @@ char *str_from_int(size_t i) {
   str = malloc(length + 1);
   snprintf(str, length + 1, "%ld", i);
   return str;
-}
-
-bigint_t *bigint_div_mod(const bigint_t *ap, const bigint_t *bp) {
-  return NULL;
 }

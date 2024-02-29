@@ -25,8 +25,8 @@ static int helper_div_cmp(bigint_t *ap, bigint_t *bp, size_t pos) {
 }
 #endif
 
-bigint_t *bigint_div_dec(const bigint_t *ap, unsigned char d) {
-  bigint_t *res;
+bigint_t* bigint_div_dec(const bigint_t* ap, unsigned char d) {
+  bigint_t* res;
   size_t i;
   int r, q, w;
 

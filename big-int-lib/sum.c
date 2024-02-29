@@ -1,76 +1,55 @@
+#include <assert.h>
+
 #include "bigint.h"
 #include "utils.h"
 
-bigint_t *bigint_sum(const bigint_t *ptr_x, const bigint_t *ptr_y) {
+bigint_t *bigint_sum_pos(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *res;
-  size_t i, max_len;
-  int max_num, sum, carry;
+  size_t i, mlen;
+  int sum, carry;
 
-  if ((ptr_x == NULL) || (ptr_y == NULL) || (ptr_x->len == 0) ||
-      (ptr_y->len == 0)) {
+  if (!ap || !bp) {
     return NULL;
   }
 
-  max_num = bigint_max_abs(ptr_x, ptr_y);
+  assert(((ap->sign == pos) && (bp->sign == pos)) || (ap->sign == zero) ||
+         (bp->sign == zero));
 
-  if (max_num != 0) {
-    return bigint_sum(ptr_y, ptr_x);
+  if (bigint_cmp_abs(ap, bp) == -1) {
+    return bigint_sum_pos(bp, ap);
   }
 
-  assert(ptr_x->len >= ptr_y->len);
+  assert(ap->len >= bp->len);
+  mlen = ap->len;
 
-  max_len = ptr_x->len;
+  /* +1 for possible carry. */
+  res = bigint_from_size(mlen + 1);
 
-  /* +1 for possbile carry. */
-  res = bigint_from_size(max_len + 1);
-
-  if (res == NULL) {
+  if (!res) {
     return NULL;
   }
 
-  res->sign = ptr_x->sign;
-
-  assert(ptr_x->len >= ptr_y->len);
-
-  for (i = 0, carry = 0; i < max_len; ++i) {
-    sum = ptr_x->digits[i] + carry;
-
-    /* Bascically a subtraction if signs are different. */
-    if (ptr_x->sign != ptr_y->sign) {
-      if (i < ptr_y->len) {
-        sum = sum - ptr_y->digits[i];
-        carry = 0;
-        if (sum < 0) {
-          carry = -1;
-          sum += BASE;
-        }
-      } else {
-        carry = 0;
-      }
-      /* Actual addition if signs are equal. */
-    } else if (ptr_x->sign == ptr_y->sign) {
-      if (i < ptr_y->len) {
-        carry = (sum + ptr_y->digits[i]) / BASE;
-        sum = (sum + ptr_y->digits[i]) % BASE;
-      }
+  carry = 0;
+  for (i = 0; i < mlen; ++i) {
+    sum = ap->digits[i] + carry;
+    if (i < bp->len) {
+      carry = (sum + bp->digits[i]) / BASE;
+      sum = (sum + bp->digits[i]) % BASE;
     }
     res->digits[i] = sum;
   }
+  assert((carry == 0) || (carry == 1));
+  assert(i == mlen);
+  res->digits[mlen] = carry;
 
-  assert(i == max_len);
-  assert(carry >= 0);
+  res->sign = pos;
 
-  res->digits[i] = carry;
-
-  bigint_normalize(res);
-
-  if (res == NULL) {
+  if (bigint_normalize(res)) {
+    bifree(res);
     return NULL;
-  }
-
-  if ((res->len == 1) && (res->digits[0] == 0)) {
-    res->sign = pos;
   }
 
   return res;
 }
+
+bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) { return NULL; }

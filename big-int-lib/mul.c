@@ -1,8 +1,8 @@
 #include "bigint.h"
 #include "utils.h"
 
-bigint_t *bigint_mul_dec(const bigint_t *ptr_x, const unsigned char d) {
-  bigint_t *res;
+bigint_t* bigint_mul_dec(const bigint_t* ptr_x, const unsigned char d) {
+  bigint_t* res;
   size_t i;
   int sum, carry;
 
@@ -63,8 +63,8 @@ bigint_t *bigint_mul_dec(const bigint_t *ptr_x, const unsigned char d) {
   return res;
 }
 
-bigint_t *bigint_mul(const bigint_t *ptr_x, const bigint_t *ptr_y) {
-  bigint_t *res;
+bigint_t* bigint_mul(const bigint_t* ptr_x, const bigint_t* ptr_y) {
+  bigint_t* res;
   size_t i, j;
   int max_num, sum, carry;
 

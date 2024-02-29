@@ -3,53 +3,74 @@
 #include "bigint.h"
 #include "utils.h"
 
-bigint_t *bigint_sum_pos(const bigint_t *ap, const bigint_t *bp) {
+static void helper_sub(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
+  int carry, w, r, q;
+  size_t i;
+
+  carry = 0;
+  for (i = 0; i < ap->len; ++i) {
+    w = ap->digits[i] + carry;
+    if (i < bp->len) {
+      w -= bp->digits[i];
+    }
+    r = eu_mod(w, BASE);
+    q = eu_div(w, BASE);
+    w = r;
+    carry = q;
+    res->digits[i] = w;
+  }
+  assert(carry == 0);
+
+  return;
+}
+
+static void helper_sum(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
+  int carry, w;
+  size_t i;
+
+  carry = 0;
+  for (i = 0; i < ap->len; ++i) {
+    w = ap->digits[i] + carry;
+    if (i < bp->len) {
+      w += bp->digits[i];
+    }
+    carry = w / BASE;
+    w %= BASE;
+    res->digits[i] = w;
+  }
+  assert(carry >= 0);
+  assert(i == ap->len);
+  res->digits[i] = carry;
+
+  return;
+}
+
+bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *res;
-  size_t i, mlen;
-  int sum, carry;
 
   if (!ap || !bp) {
     return NULL;
   }
 
-  assert(((ap->sign == pos) && (bp->sign == pos)) || (ap->sign == zero) ||
-         (bp->sign == zero));
-
   if (bigint_cmp_abs(ap, bp) == -1) {
-    return bigint_sum_pos(bp, ap);
+    return bigint_sum(bp, ap);
   }
 
   assert(ap->len >= bp->len);
-  mlen = ap->len;
 
-  /* +1 for possible carry. */
-  res = bigint_from_size(mlen + 1);
+  res = bigint_from_size(ap->len + 1);
 
-  if (!res) {
+  if (res == NULL) {
     return NULL;
   }
 
-  carry = 0;
-  for (i = 0; i < mlen; ++i) {
-    sum = ap->digits[i] + carry;
-    if (i < bp->len) {
-      carry = (sum + bp->digits[i]) / BASE;
-      sum = (sum + bp->digits[i]) % BASE;
-    }
-    res->digits[i] = sum;
-  }
-  assert((carry == 0) || (carry == 1));
-  assert(i == mlen);
-  res->digits[mlen] = carry;
-
-  res->sign = pos;
-
-  if (bigint_normalize(res)) {
-    bifree(res);
-    return NULL;
+  res->sign = ap->sign;
+  if (ap->sign != bp->sign) {
+    helper_sub(ap, bp, res);
+  } else {
+    helper_sum(ap, bp, res);
   }
 
+  bigint_normalize(res);
   return res;
 }
-
-bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) { return NULL; }

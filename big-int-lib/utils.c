@@ -61,10 +61,10 @@ int bigint_normalize(bigint_t* ap) {
 
     ap->digits = tmp;
     ap->len = new_len;
+  }
 
-    if ((new_len == 1) && (*tmp == 0)) {
-      ap->sign = zero;
-    }
+  if ((new_len == 1) && (*ap->digits == 0)) {
+    ap->sign = zero;
   }
 
   return 0;
@@ -95,7 +95,6 @@ int bigint_cmp_abs(const bigint_t* ap, const bigint_t* bp) {
 }
 
 int bigint_cmp(const bigint_t* ap, const bigint_t* bp) {
-  size_t i;
   int ret, sign, abs_cmp;
 
   ret = 0;
@@ -136,4 +135,69 @@ int bigint_rshift(bigint_t* ap, size_t t) {
   ap->len = ap->len + t;
 
   return 0;
+}
+
+bigint_t* bigint_cpy(const bigint_t* ap) {
+  bigint_t* res;
+
+  res = malloc(sizeof(bigint_t));
+
+  if (!ap || !res) {
+    return NULL;
+  }
+
+  res->digits = calloc(ap->len, sizeof(char));
+
+  if (!res->digits) {
+    bifree(res);
+    return NULL;
+  }
+
+  res->sign = ap->sign;
+  res->len = ap->len;
+  assert(res->len == ap->len);
+  memcpy(res->digits, ap->digits, ap->len * sizeof(char));
+
+  return res;
+}
+
+bigint_t* bigint_mirror(const bigint_t* ap) {
+  bigint_t* res;
+
+  res = malloc(sizeof(bigint_t));
+
+  if (!ap || !res) {
+    return NULL;
+  }
+
+  res->digits = ap->digits;
+  res->sign = ap->sign;
+  res->len = ap->len;
+
+  return res;
+}
+
+int iabs(int x) { return (x < 0) ? -x : x; }
+
+int eu_mod(const int x, const int y) {
+  int r;
+  assert(y != 0);
+  r = x % y;
+  if (r < 0) {
+    r += iabs(y);
+  }
+  return r;
+}
+
+int eu_div(const int x, const int y) {
+  int q, r;
+  assert(y != 0);
+  r = eu_mod(x, y);
+  q = (x - r) / y;
+  return q;
+}
+
+sign_t rev_sign(sign_t sgn) {
+  sign_t ret = -1 * sgn;
+  return ret;
 }

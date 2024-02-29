@@ -28,15 +28,11 @@ char* bigint_to_str(const bigint_t* ap);
 /* Convert from integer to BigInt. */
 bigint_t* bigint_from_int(int n);
 
+/* Convert from BigInt to integer. */
 int bigint_to_int(const bigint_t* ap);
-
-bigint_t* bigint_sum_pos(const bigint_t* ap, const bigint_t* bp);
 
 /* Return the sum of two big integers. */
 bigint_t* bigint_sum(const bigint_t* ap, const bigint_t* bp);
-
-/* Return the difference of two big integers. */
-bigint_t* bigint_sub_pos(const bigint_t* ap, const bigint_t* bp);
 
 /* Return the difference of two big integers. */
 bigint_t* bigint_sub(const bigint_t* ap, const bigint_t* bp);
@@ -44,16 +40,10 @@ bigint_t* bigint_sub(const bigint_t* ap, const bigint_t* bp);
 /* Return the product of two big integers. */
 bigint_t* bigint_mul(const bigint_t* ap, const bigint_t* bp);
 
-/* Multiply a big integer by a 0 <= d < 10. */
-bigint_t* bigint_mul_dec(const bigint_t* ap, const unsigned char d);
+/* Perform an math integer division of two big integers. */
+bigint_t* bigint_div(const bigint_t* ap, const bigint_t* bp);
 
-/* Perform an integer division big integer and a 0 < d < 10. */
-bigint_t* bigint_div_dec(const bigint_t* ap, const unsigned char d);
-
-/* Perform an integer division of two big integers. */
-bigint_t* bigint_div_mod(const bigint_t* ap, const bigint_t* bp);
-
-/* Perform a modulo division of two big integers. */
+/* Perform a math modulo division of two big integers. */
 bigint_t* bigint_mod(const bigint_t* ap, const bigint_t* bp);
 
 #endif /* __BIGINT_H__ */

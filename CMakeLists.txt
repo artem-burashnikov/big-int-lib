@@ -8,6 +8,8 @@ add_library(bigint STATIC
     big-int-lib/utils.c
     big-int-lib/sum.c
     big-int-lib/sub.c
+    big-int-lib/mul.c
+    big-int-lib/div.c
 )
 
 # Add the source files for the tests executable

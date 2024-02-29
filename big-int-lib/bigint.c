@@ -164,10 +164,6 @@ bigint_t *bigint_from_int(int n) {
 int bigint_to_int(const bigint_t *ap) {
   int i, p, res;
 
-  if (!ap) {
-    return NULL;
-  }
-
   if (ap->sign != zero) {
     for (p = 1, res = 0, i = 0; i < ap->len; ++i) {
       res += p * ap->digits[i];

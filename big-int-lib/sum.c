@@ -15,9 +15,8 @@ static void helper_sub(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
     }
     r = eu_mod(w, BASE);
     q = eu_div(w, BASE);
-    w = r;
     carry = q;
-    res->digits[i] = w;
+    res->digits[i] = r;
   }
   assert(carry == 0);
 

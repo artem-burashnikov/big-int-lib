@@ -33,4 +33,6 @@ int eu_div(const int x, const int y);
 
 sign_t rev_sign(sign_t sgn);
 
+void add_one(bigint_t *ap)
+
 #endif /* __UTILS_H__ */

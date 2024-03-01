@@ -201,3 +201,28 @@ sign_t rev_sign(sign_t sgn) {
   sign_t ret = -1 * sgn;
   return ret;
 }
+
+void add_one(bigint_t *ap) {
+  size_t i, n;
+  int carry, sum;
+
+  n = ap->len;
+
+  bigint_add_padding(ap, 1);
+
+  carry = 0;
+  for (i = 0; i < n; ++i) {
+    if (i == 0) {
+      sum = ap->digits[i] + carry + 1;
+    } else {
+      sum = ap->digits[i] + carry;
+    }
+    carry = sum / BASE;
+    sum %= BASE;
+    ap->digits[i] = sum;
+  }
+  assert(ap->len == (n+1));
+  ap->digits[n] = carry;
+  bigint_normalize(ap);
+  return;
+}

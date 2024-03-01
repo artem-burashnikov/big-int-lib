@@ -512,7 +512,7 @@ MU_TEST(divdecneg) {
   bigint_t *b = bigint_from_int(-5);
   bigint_t *d = bigint_from_int(-7);
   bigint_t *e = bigint_from_int(3);
- 
+
   bigint_t *res1 = bigint_div(a, b);
   mu_assert_int_eq(-2, bigint_to_int(res1));
 
@@ -531,6 +531,37 @@ MU_TEST(divdecneg) {
   bifree(res3);
 }
 
+MU_TEST(bidiv) {
+  bigint_t *a = bigint_from_int(52621);
+  bigint_t *b = bigint_from_int(455);
+
+  /* 4100/588 enables addback step. */
+  bigint_t *c = bigint_from_int(4100);
+  bigint_t *d = bigint_from_int(588);
+
+  bigint_t *e = bigint_from_str("99899999001");
+  bigint_t *f = bigint_from_str("99999999");
+
+  bigint_t *res1 = bigint_div(a, b);
+  mu_assert_int_eq(115, bigint_to_int(res1));
+
+  bigint_t *res2 = bigint_div(c, d);
+  mu_assert_int_eq(6, bigint_to_int(res2));
+
+  bigint_t *res3 = bigint_div(e, f);
+  mu_assert_int_eq(999, bigint_to_int(res3));
+
+  bifree(a);
+  bifree(b);
+  bifree(c);
+  bifree(d);
+  bifree(e);
+  bifree(f);
+  bifree(res1);
+  bifree(res2);
+  bifree(res3);
+}
+
 int main() {
   MU_RUN_TEST(from_size);
   MU_RUN_TEST(from_str);
@@ -543,6 +574,7 @@ int main() {
   MU_RUN_TEST(nfactorial);
   MU_RUN_TEST(divdecpos);
   MU_RUN_TEST(divdecneg);
+  MU_RUN_TEST(bidiv);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

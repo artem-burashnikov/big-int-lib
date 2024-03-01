@@ -127,7 +127,7 @@ static bigint_t *bigint_from_digits(const size_t n, const size_t digits_cnt) {
 
 static bigint_t *bigint_zero(void) { return bigint_from_digits(0, 1); }
 
-static bigint_t *bigint_from_uint(const size_t n) {
+static bigint_t *bigint_from_uint(const unsigned int n) {
   bigint_t *retp;
   size_t digits_cnt;
 

@@ -55,26 +55,23 @@ static int guess_test(const int q, const int r, const int v, const int u) {
 
 static int mulsub(char *u, const char *v, const size_t n, const size_t j,
                   const int q) {
-  int carry, i, w, r, qq;
+  int carry, i, w;
   carry = 0;
   for (i = 0; i <= n; --i) {
     w = u[j + i] - q * v[i] + carry;
-    r = eu_mod(w, BASE);
-    qq = eu_div(w, BASE);
-    w = r;
-    carry = qq;
+    w = eu_mod(w, BASE);
+    carry = eu_div(w, BASE);
     u[j + i] = w;
   }
 
   return carry;
 }
 
-static void addback(int *q, char *u, char *v, const size_t n, const size_t j) {
+static void addback(char *u, char *v, const size_t n, const size_t j) {
   size_t i;
   int carry;
   int w;
 
-  *q = *q - 1;
   assert(u[n] == -1);
   carry = 0;
   for (i = 0; i <= n; ++i) {
@@ -129,7 +126,12 @@ static int bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp,
     guess_r = (uu[j + n] * BASE + uu[j + n - 1]) % vv[n - 1];
 
     /* Guess q test */
-    while (guess_r < BASE) {
+    if (guess_test(guess_q, guess_r, vv[n - 2], uu[j + n - 2])) {
+      guess_q -= 1;
+      guess_r += vv[n - 1];
+    }
+
+    if (guess_r < BASE) {
       if (guess_test(guess_q, guess_r, vv[n - 2], uu[j + n - 2])) {
         guess_q -= 1;
         guess_r += vv[n - 1];
@@ -170,18 +172,23 @@ static int bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp,
       uu[ii] += carry2;
       assert(uu[j + ii] == 0);
 #endif
-      addback(&guess_q, uu, vv, n, j);
+      guess_q -= 1;
+      addback(uu, vv, n, j);
     }
 
     res[j] = guess_q;
   }
 
+  bigint_normalize(resp);
+  bifree(u);
+  bifree(v);
   return 0;
 }
 
 bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *resp;
-  if (!ap || !bp || bp->sign == zero) {
+
+  if (!ap || !bp || (bp->sign == zero)) {
     return NULL;
   }
 
@@ -189,15 +196,12 @@ bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp) {
     return bigint_from_int(0);
   }
 
-  if (bigint_cmp_abs(ap, bp) == -1) {
-    if ((ap->sign == pos) & (bp->sign == pos)) {
-      return bigint_from_int(0);
-    } else if ((ap->sign == pos) && (bp->sign == neg)) {
-      return bigint_from_int(1);
-    }
+  if ((bigint_cmp_abs(ap, bp) == -1) && (ap->sign == pos)) {
+    return bigint_from_int(0);
   }
 
   resp = bigint_from_size(ap->len - bp->len + 1);
+  resp->sign = pos;
 
   if (!resp) {
     return NULL;
@@ -208,17 +212,18 @@ bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp) {
   if ((ap->sign == pos) && (bp->sign) == pos) {
     return resp;
   } else if ((ap->sign == pos) && (bp->sign == neg)) {
+    resp->sign = neg;
+    return resp;
+  } else if ((ap->sign == neg) && (bp->sign == pos)) {
     bigint_t *one = bigint_from_int(1);
-    bigint_div_mod_pos(ap, bp, resp);
     bigint_t *tmp = bigint_sum(resp, one);
     bifree(one);
     bifree(resp);
+    tmp->sign = neg;
     return tmp;
-  } else if ((ap->sign == neg) && (bp->sign == pos)) {
+  } else if ((ap->sign == neg) && (bp->sign == neg)) {
     bigint_t *one = bigint_from_int(1);
-    bigint_div_mod_pos(ap, bp, resp);
     bigint_t *tmp = bigint_sum(resp, one);
-    tmp->sign = rev_sign(tmp->sign);
     bifree(one);
     bifree(resp);
     return tmp;

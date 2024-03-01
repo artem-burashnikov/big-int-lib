@@ -476,15 +476,59 @@ MU_TEST(nfactorial) {
 }
 
 MU_TEST(divdecpos) {
-  bigint_t *a = bigint_from_int(512616212599);
+  bigint_t *a = bigint_from_str("12345678998");
   bigint_t *b = bigint_from_int(5);
+  bigint_t *c = bigint_from_str("123456789985211");
+  bigint_t *d = bigint_from_int(7);
 
-  bigint_t *res = bigint_div(a, b);
-  mu_assert_int_eq(102523242519, bigint_to_int(res));
-  
+  bigint_t *res1 = bigint_div(a, b);
+  char *s1 = bigint_to_str(res1);
+  mu_assert_string_eq("2469135799", s1);
+
+  bigint_t *res2 = bigint_div(c, d);
+  char *s2 = bigint_to_str(res2);
+  mu_assert_string_eq("17636684283601", s2);
+
+  bigint_t *res3 = bigint_div(d, b);
+  mu_assert_int_eq(1, bigint_to_int(res3));
+
+  bigint_t *res4 = bigint_div(b, d);
+  mu_assert_int_eq(0, bigint_to_int(res4));
+
   bifree(a);
   bifree(b);
-  bifree(res);
+  bifree(c);
+  bifree(d);
+  bifree(res1);
+  bifree(res2);
+  bifree(res3);
+  bifree(res4);
+  free(s1);
+  free(s2);
+}
+
+MU_TEST(divdecneg) {
+  bigint_t *a = bigint_from_int(12);
+  bigint_t *b = bigint_from_int(-5);
+  bigint_t *d = bigint_from_int(-7);
+  bigint_t *e = bigint_from_int(3);
+ 
+  bigint_t *res1 = bigint_div(a, b);
+  mu_assert_int_eq(-2, bigint_to_int(res1));
+
+  bigint_t *res2 = bigint_div(d, e);
+  mu_assert_int_eq(-3, bigint_to_int(res2));
+
+  bigint_t *res3 = bigint_div(b, e);
+  mu_assert_int_eq(-2, bigint_to_int(res3));
+
+  bifree(a);
+  bifree(b);
+  bifree(d);
+  bifree(e);
+  bifree(res1);
+  bifree(res2);
+  bifree(res3);
 }
 
 int main() {
@@ -497,6 +541,8 @@ int main() {
   MU_RUN_TEST(sub);
   MU_RUN_TEST(mul);
   MU_RUN_TEST(nfactorial);
+  MU_RUN_TEST(divdecpos);
+  MU_RUN_TEST(divdecneg);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

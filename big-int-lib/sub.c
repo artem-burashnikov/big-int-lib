@@ -1,22 +1,22 @@
+#include <assert.h>
+
 #include "bigint.h"
 #include "utils.h"
 
-bigint_t *bigint_sub(const bigint_t *ptr_x, const bigint_t *ptr_y) {
-  bigint_t *tmp, *res;
+bigint_t *bigint_sub(const bigint_t *ap, const bigint_t *bp) {
+  bigint_t *v, *res;
 
-  tmp = bigint_init();
+  v = bigint_mirror(bp);
 
-  if ((ptr_x == NULL) || (ptr_y == NULL) || (tmp == NULL)) {
+  if (!ap || !bp || !v) {
     return NULL;
   }
 
-  tmp->sign = !ptr_y->sign;
-  tmp->len = ptr_y->len;
-  tmp->digits = ptr_y->digits;
+  v->sign = rev_sign(bp->sign);
 
-  res = bigint_sum(ptr_x, tmp);
+  res = bigint_sum(ap, v);
 
-  free(tmp);
+  free(v);
 
   return res;
 }

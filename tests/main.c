@@ -20,8 +20,7 @@ static bigint_t *factorial(const unsigned int n) {
     tmp = bigint_mul(resp, factor);
     bifree(factor);
     bifree(resp);
-    resp = bigint_mirror(tmp);
-    free(tmp);
+    resp = tmp;
   }
 
   return resp;

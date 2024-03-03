@@ -5,7 +5,7 @@
 #include "utils.h"
 
 /* Perform a multiplication by a single decimal. */
-static int bigint_mul_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
+static void bigint_mul_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
   size_t i;
   uint8_t w, carry;
 
@@ -16,12 +16,11 @@ static int bigint_mul_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
     carry = w / BASE;
   }
   resp->digits[ap->len] = carry;
-
-  return 0;
+  return;
 }
 
 /* Perform a division by a single decimal. */
-static int bigint_div_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
+static void bigint_div_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
   size_t i;
   uint8_t r, q, sum;
 
@@ -34,16 +33,15 @@ static int bigint_div_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
   }
 
   bigint_normalize(resp);
-
-  return 0;
+  return;
 }
 
-/* Sort out almost all incorrect quesses. */
-static int guess_test(uint8_t q, uint8_t r, uint8_t v, uint8_t u) {
+/* Sort out almost all incorrect quesses of digit of quotient. */
+static int8_t guess_test(uint8_t q, uint8_t r, uint8_t v, uint8_t u) {
   return ((q >= BASE) || (q * v > BASE * r + u));
 }
 
-static int mulsub(bigint_t *u, bigint_t *v, size_t n, size_t j, uint8_t q) {
+static int8_t mulsub(bigint_t *u, bigint_t *v, size_t n, size_t j, uint8_t q) {
   uint8_t mul, sum_carry;
   int8_t sub, sub_carry;
   size_t i;
@@ -62,7 +60,7 @@ static int mulsub(bigint_t *u, bigint_t *v, size_t n, size_t j, uint8_t q) {
   return sub_carry;
 }
 
-/* This function is called when the guessed q is 1 off. */
+/* This function is called when the guessed q were 1 off. */
 static void addback(bigint_t *u, bigint_t *v, size_t n, size_t j) {
   size_t i;
   int8_t w, carry;
@@ -78,17 +76,21 @@ static void addback(bigint_t *u, bigint_t *v, size_t n, size_t j) {
   assert(i == n + 1);
   assert(u->len >= (n + j));
   u->digits[n + j] = 0;
+
+  return;
 }
 
-/* Normalize u and v when performing u/v division
-   so that it is possible to guess q almost accurately. */
-static void alg_normalize(bigint_t *ap, bigint_t *bp, bigint_t *u, bigint_t *v,
-                          uint8_t d) {
+/* Normalize u and v when performing u/v division (u/v == (ud)/(vd))
+   so that it is possible to guess q with high precision. */
+static void alg_normalize(const bigint_t *ap, const bigint_t *bp, bigint_t *u,
+                          bigint_t *v, uint8_t d) {
   bigint_add_padding(u, 1);
   bigint_add_padding(v, 1);
   bigint_mul_dec_pos(ap, u, d);
   bigint_mul_dec_pos(bp, v, d);
   bigint_normalize(v);
+
+  return;
 }
 
 static uint8_t guessq(char *u, char *v, size_t j, size_t n) {
@@ -112,17 +114,23 @@ static uint8_t guessq(char *u, char *v, size_t j, size_t n) {
   return q;
 }
 
-/* Schoolbook division which utilizes math to guess the digits of quotient.
-   The remainder is calculated for free. */
-static void bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp,
-                              bigint_t *resp) {
-  bigint_t *u, *v;
+/* Schoolbook division which utilizes Knuth's Algorithm D section 4.3.1. */
+static bigint_t *bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp) {
+  bigint_t *resp, *u, *v;
   size_t j, n, m;
   uint8_t d, q;
   int8_t carry;
 
+  resp = bigint_from_size(ap->len - bp->len + 1);
+  resp->sign = pos;
+
+  if (!resp) {
+    return NULL;
+  }
+
   if ((bp->sign != zero) && (bp->len == 1)) {
-  return bigint_div_dec_pos(ap, resp, *bp->digits);
+    bigint_div_dec_pos(ap, resp, *bp->digits);
+    return resp;
   }
 
   u = bigint_from_size(ap->len);
@@ -130,17 +138,15 @@ static void bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp,
 
   n = v->len;
   m = u->len - n;
-  u->sign = v->sign = pos;
 
   /* Normalization factor for easy q guessing. */
   d = BASE / (bp->digits[n - 1] + 1);
   alg_normalize(ap, bp, u, v, d);
 
-  /* Loop to find the resulting quotient of size no bigger than m + 1. 
+  /* Loop to find the resulting quotient of size no bigger than m + 1.
      j should be set to m, but to avoid the resulting oveflow from going
      below zero, it is instead set to m + 1. */
   for (j = m + 1; j > 0; --j) {
-    
     q = guessq(u->digits, v->digits, (j - 1), n);
 
     bigint_add_padding(v, 1);
@@ -156,41 +162,39 @@ static void bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp,
     bigint_normalize(v);
   }
 
-  bigint_normalize(resp);
   bifree(u);
   bifree(v);
-  return;
+
+  bigint_normalize(resp);
+  return resp;
 }
 
 bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *resp;
+  int8_t cmp;
 
   if (!ap || !bp || (bp->sign == zero)) {
     return NULL;
   }
 
-  if (ap->sign == zero) {
+  cmp = bigint_cmp_abs(ap, bp);
+  if ((cmp == -1) && (ap->sign != neg)) {
     return bigint_from_int(0);
+  } else if ((cmp == -1) && (bp->sign == pos)) {
+    return bigint_from_int(-1);
+  } else if ((cmp == -1) && (bp->sign == neg)) {
+    return bigint_from_int(1);
   }
-
-  if ((bigint_cmp_abs(ap, bp) == -1) && (ap->sign == pos)) {
-    return bigint_from_int(0);
-  }
-
-  resp = bigint_from_size(ap->len - bp->len + 1);
-  resp->sign = pos;
-
-  if (!resp) {
-    return NULL;
-  }
-
-  bigint_div_mod_pos(ap, bp, resp);
+  assert(ap->len >= bp->len);
+  resp = bigint_div_mod_pos(ap, bp);
 
   if (ap->sign == neg) {
     add_one(resp);
   }
 
-  resp->sign = ap->sign * bp->sign;
+  if (resp->sign != zero) {
+    resp->sign = ap->sign * bp->sign;
+  }
 
   return resp;
 }

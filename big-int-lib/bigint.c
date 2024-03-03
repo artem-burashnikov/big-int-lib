@@ -2,18 +2,18 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "utils.h"
 
-static size_t get_num_digits(const int n) {
+static size_t get_num_digits(const uint64_t n) {
   size_t len;
-  int x;
+  uint64_t x;
 
   for (len = 0, x = n; x > 0; x /= 10) {
     len += 1;
   }
-
   return len;
 }
 
@@ -38,7 +38,6 @@ bigint_t *bigint_from_size(const size_t len) {
   ap->len = len;
   ap->sign = zero;
   ap->digits = tmp;
-
   return ap;
 }
 
@@ -127,7 +126,7 @@ static bigint_t *bigint_from_digits(const size_t n, const size_t digits_cnt) {
 
 static bigint_t *bigint_zero(void) { return bigint_from_digits(0, 1); }
 
-static bigint_t *bigint_from_uint(const unsigned int n) {
+static bigint_t *bigint_from_uint(const uint64_t n) {
   bigint_t *retp;
   size_t digits_cnt;
 
@@ -144,7 +143,7 @@ static bigint_t *bigint_from_uint(const unsigned int n) {
   return retp;
 }
 
-bigint_t *bigint_from_int(int n) {
+bigint_t *bigint_from_int(int32_t n) {
   bigint_t *retp;
   if (n == 0) {
     retp = bigint_zero();
@@ -161,8 +160,8 @@ bigint_t *bigint_from_int(int n) {
   return retp;
 }
 
-int bigint_to_int(const bigint_t *ap) {
-  int i, p, res;
+int32_t bigint_to_int(const bigint_t *ap) {
+  int32_t i, p, res;
 
   if (ap->sign != zero) {
     for (p = 1, res = 0, i = 0; i < ap->len; ++i) {
@@ -184,7 +183,7 @@ int bigint_to_int(const bigint_t *ap) {
 
 char *bigint_to_str(const bigint_t *ap) {
   char *str;
-  int sign;
+  int8_t sign;
   size_t str_len, i;
 
   if (!ap) {

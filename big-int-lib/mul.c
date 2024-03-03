@@ -1,28 +1,13 @@
 #include <assert.h>
+#include <stdint.h>
 
 #include "bigint.h"
 #include "utils.h"
 
-static sign_t get_sign(sign_t sgnx, sign_t sgny) {
-  sign_t res;
-
-  res = 0;
-
-  if ((sgnx == zero) || (sgny == zero)) {
-    res = zero;
-  } else if (sgnx == sgny) {
-    res = pos;
-  } else {
-    res = neg;
-  }
-
-  return res;
-}
-
 bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *resp;
   size_t i, j, m, n;
-  int w, carry;
+  int8_t w, carry;
   char *u, *v, *res;
 
   if (!ap || !bp) {
@@ -31,7 +16,7 @@ bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp) {
 
   resp = bigint_from_size(ap->len + bp->len);
 
-  resp->sign = get_sign(ap->sign, bp->sign);
+  resp->sign = ap->sign * bp->sign;
 
   n = ap->len;
   m = bp->len;

@@ -1,12 +1,13 @@
 #include "utils.h"
 
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "bigint.h"
 
-int bigint_add_padding(bigint_t* ap, const size_t t) {
+void bigint_add_padding(bigint_t* ap, const size_t t) {
   char* tmp;
   size_t old_len, new_len;
   size_t i;
@@ -31,10 +32,10 @@ int bigint_add_padding(bigint_t* ap, const size_t t) {
     ap->digits[i] = 0;
   }
 
-  return 0;
+  return;
 }
 
-int bigint_normalize(bigint_t* ap) {
+void bigint_normalize(bigint_t* ap) {
   char* tmp;
   size_t old_len, new_len, i;
 
@@ -67,11 +68,11 @@ int bigint_normalize(bigint_t* ap) {
     ap->sign = zero;
   }
 
-  return 0;
+  return;
 }
 
-int bigint_cmp_abs(const bigint_t* ap, const bigint_t* bp) {
-  int ret;
+int8_t bigint_cmp_abs(const bigint_t* ap, const bigint_t* bp) {
+  int8_t ret;
   size_t i;
 
   ret = 0;
@@ -94,8 +95,8 @@ int bigint_cmp_abs(const bigint_t* ap, const bigint_t* bp) {
   return ret;
 }
 
-int bigint_cmp(const bigint_t* ap, const bigint_t* bp) {
-  int ret, sign, abs_cmp;
+int8_t bigint_cmp(const bigint_t* ap, const bigint_t* bp) {
+  int8_t ret, sign, abs_cmp;
 
   ret = 0;
   abs_cmp = bigint_cmp_abs(ap, bp);
@@ -112,7 +113,7 @@ int bigint_cmp(const bigint_t* ap, const bigint_t* bp) {
   return ret;
 }
 
-int bigint_rshift(bigint_t* ap, size_t t) {
+void bigint_rshift(bigint_t* ap, size_t t) {
   char* tmp;
 
   if (!ap) {
@@ -134,7 +135,7 @@ int bigint_rshift(bigint_t* ap, size_t t) {
   ap->digits = tmp;
   ap->len = ap->len + t;
 
-  return 0;
+  return;
 }
 
 bigint_t* bigint_cpy(const bigint_t* ap) {
@@ -177,10 +178,10 @@ bigint_t* bigint_mirror(const bigint_t* ap) {
   return res;
 }
 
-int iabs(int x) { return (x < 0) ? -x : x; }
+int32_t iabs(int32_t x) { return (x < 0) ? -x : x; }
 
-int eu_mod(const int x, const int y) {
-  int r;
+int32_t eu_mod(const int32_t x, const int32_t y) {
+  int32_t r;
   assert(y != 0);
   r = x % y;
   if (r < 0) {
@@ -189,8 +190,8 @@ int eu_mod(const int x, const int y) {
   return r;
 }
 
-int eu_div(const int x, const int y) {
-  int q, r;
+int32_t eu_div(const int32_t x, const int32_t y) {
+  int32_t q, r;
   assert(y != 0);
   r = eu_mod(x, y);
   q = (x - r) / y;
@@ -202,9 +203,9 @@ sign_t rev_sign(sign_t sgn) {
   return ret;
 }
 
-void add_one(bigint_t *ap) {
+void add_one(bigint_t* ap) {
   size_t i, n;
-  int carry, sum;
+  int8_t carry, sum;
 
   n = ap->len;
 
@@ -221,7 +222,7 @@ void add_one(bigint_t *ap) {
     sum %= BASE;
     ap->digits[i] = sum;
   }
-  assert(ap->len == (n+1));
+  assert(ap->len == (n + 1));
   ap->digits[n] = carry;
   bigint_normalize(ap);
   return;

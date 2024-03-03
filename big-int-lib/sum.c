@@ -1,10 +1,11 @@
 #include <assert.h>
+#include <stdint.h>
 
 #include "bigint.h"
 #include "utils.h"
 
 static void helper_sub(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
-  int carry, w, r, q;
+  int8_t carry, w, r, q;
   size_t i;
 
   carry = 0;
@@ -24,7 +25,7 @@ static void helper_sub(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
 }
 
 static void helper_sum(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
-  int carry, w;
+  int8_t carry, w;
   size_t i;
 
   carry = 0;

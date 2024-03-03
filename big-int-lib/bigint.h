@@ -1,6 +1,7 @@
 #ifndef __BIGINT_H__
 #define __BIGINT_H__
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #define BASE 10
@@ -26,10 +27,10 @@ bigint_t* bigint_from_str(const char* str);
 char* bigint_to_str(const bigint_t* ap);
 
 /* Convert from integer to BigInt. */
-bigint_t* bigint_from_int(int n);
+bigint_t* bigint_from_int(int32_t n);
 
 /* Convert from BigInt to integer. */
-int bigint_to_int(const bigint_t* ap);
+int32_t bigint_to_int(const bigint_t* ap);
 
 /* Return the sum of two big integers. */
 bigint_t* bigint_sum(const bigint_t* ap, const bigint_t* bp);

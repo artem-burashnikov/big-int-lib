@@ -10,6 +10,7 @@ add_library(bigint STATIC
     big-int-lib/sub.c
     big-int-lib/mul.c
     big-int-lib/div.c
+    big-int-lib/mod.c
 )
 
 # Add the source files for the tests executable

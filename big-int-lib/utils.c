@@ -13,7 +13,7 @@ void bigint_add_padding(bigint_t* ap, const size_t t) {
   size_t i;
 
   if (!ap) {
-    return 1;
+    return;
   }
 
   old_len = ap->len;
@@ -22,7 +22,7 @@ void bigint_add_padding(bigint_t* ap, const size_t t) {
   tmp = realloc(ap->digits, sizeof(char) * new_len);
 
   if (!tmp) {
-    return 1;
+    return;
   }
 
   ap->digits = tmp;
@@ -40,7 +40,7 @@ void bigint_normalize(bigint_t* ap) {
   size_t old_len, new_len, i;
 
   if (!ap) {
-    return 1;
+    return;
   }
 
   old_len = new_len = ap->len;
@@ -57,7 +57,7 @@ void bigint_normalize(bigint_t* ap) {
     tmp = realloc(ap->digits, sizeof(char) * new_len);
 
     if (!tmp) {
-      return 1;
+      return;
     }
 
     ap->digits = tmp;
@@ -117,17 +117,17 @@ void bigint_rshift(bigint_t* ap, size_t t) {
   char* tmp;
 
   if (!ap) {
-    return 1;
+    return;
   }
 
   if (t == 0) {
-    return 0;
+    return;
   }
 
   tmp = calloc(ap->len + t, sizeof(char));
 
   if (!tmp) {
-    return 1;
+    return;
   }
 
   memcpy(tmp + t, ap->digits, ap->len * sizeof(char));

@@ -27,6 +27,53 @@ static bigint_t *factorial(const unsigned int n) {
   return resp;
 }
 
+static bigint_t *gcd(const bigint_t *ap, const bigint_t *bp) {
+  bigint_t *u, *v, *r;
+  int8_t cmp;
+
+  u = v = r = NULL;
+
+  if (!ap || !bp) {
+    return r;
+  }
+
+  u = bigint_cpy(ap);
+  v = bigint_cpy(bp);
+
+  if ((ap->sign == zero) || (bp->sign == zero)) {
+    return bigint_from_int(0);
+  }
+
+  if ((ap->sign != pos) && (bp->sign != pos)) {
+    u->sign = pos;
+    v->sign = pos;
+    r = gcd(u, v);
+    bifree(u);
+    bifree(v);
+    return r;
+  }
+
+  cmp = bigint_cmp_abs(ap, bp);
+
+  if (cmp == -1) {
+    return gcd(bp, ap);
+  }
+
+  r = bigint_mod(u, v);
+  while (r->sign != 0) {
+    bifree(u);
+    u = bigint_mirror(v);
+    free(v);
+    v = bigint_mirror(r);
+    free(r);
+    r = bigint_mod(u, v);
+  }
+
+  bifree(r);
+  bifree(u);
+  return v;
+}
+
 MU_TEST(from_size) {
   size_t size_0 = 0;
   size_t size_1000 = 1000;
@@ -532,8 +579,11 @@ MU_TEST(divdecneg) {
 }
 
 MU_TEST(bidiv) {
+  bigint_t *w = bigint_from_int(300);
   bigint_t *a = bigint_from_int(52621);
   bigint_t *b = bigint_from_int(455);
+  bigint_t *neg_a = bigint_from_int(-52621);
+  bigint_t *neg_b = bigint_from_int(-455);
 
   /* 4100/588 enables addback step. */
   bigint_t *c = bigint_from_int(4100);
@@ -551,15 +601,66 @@ MU_TEST(bidiv) {
   bigint_t *res3 = bigint_div(e, f);
   mu_assert_int_eq(999, bigint_to_int(res3));
 
+  bigint_t *res4 = bigint_div(b, a);
+  mu_assert_int_eq(0, bigint_to_int(res4));
+
+  bigint_t *res5 = bigint_div(a, neg_b);
+  mu_assert_int_eq(-115, bigint_to_int(res5));
+
+  bigint_t *res6 = bigint_div(w, neg_b);
+  mu_assert_int_eq(0, bigint_to_int(res6));
+
+  bigint_t *res7 = bigint_div(neg_a, b);
+  mu_assert_int_eq(-116, bigint_to_int(res7));
+
+  bigint_t *res8 = bigint_div(neg_b, a);
+  mu_assert_int_eq(-1, bigint_to_int(res8));
+
+  bigint_t *res9 = bigint_div(neg_a, neg_b);
+  mu_assert_int_eq(116, bigint_to_int(res9));
+
+  bigint_t *res10 = bigint_div(neg_b, neg_a);
+  mu_assert_int_eq(1, bigint_to_int(res10));
+
+  bifree(w);
   bifree(a);
   bifree(b);
   bifree(c);
   bifree(d);
   bifree(e);
   bifree(f);
+  bifree(neg_a);
+  bifree(neg_b);
   bifree(res1);
   bifree(res2);
   bifree(res3);
+  bifree(res4);
+  bifree(res5);
+  bifree(res6);
+  bifree(res7);
+  bifree(res8);
+  bifree(res9);
+  bifree(res10);
+}
+
+MU_TEST(bigint_gcd) {
+  bigint_t *a = bigint_from_str("14");
+  bigint_t *b = bigint_from_str("12");
+  bigint_t *c = bigint_from_str("125212666666662124203582305152351360");
+  bigint_t *d = bigint_from_str("4205023020002352");
+
+  bigint_t *res1 = gcd(a, b);
+  mu_assert_int_eq(2, bigint_to_int(res1));
+
+  bigint_t *res2 = gcd(c, d);
+  mu_assert_int_eq(16, bigint_to_int(res2));
+
+  bifree(a);
+  bifree(b);
+  bifree(c);
+  bifree(d);
+  bifree(res1);
+  bifree(res2);
 }
 
 int main() {
@@ -575,6 +676,7 @@ int main() {
   MU_RUN_TEST(divdecpos);
   MU_RUN_TEST(divdecneg);
   MU_RUN_TEST(bidiv);
+  MU_RUN_TEST(bigint_gcd);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

@@ -27,7 +27,11 @@ Source files have self explanatory names.
 
 ## Features
 
-- **String-to-big-integer conversion and vice versa**
+Biginteger structure can be initialized from and converted to a string and integers.
+
+Digits are stored in little-endian order.
+
+Make sure the integer type can hold a given bigint before converting to integer.
 
 - **Basic arithmetic operations:** 
     - Addition `+`
@@ -35,6 +39,8 @@ Source files have self explanatory names.
     - Multiplication `*`
     - Integer division `/`
     - Modulo division `%`
+
+All operations return a new bigint structure.
 
 ## Table of contents
 
@@ -50,7 +56,7 @@ Source files have self explanatory names.
 ### Prerequisites
 
 - CMake (version 3.22.1 or higher)
-- GCC (or another C compiler)
+- GCC
 
 ### Building
 
@@ -75,19 +81,85 @@ Open the terminal and follow these steps:
     cmake ..
     ```
 
-4. Build a library:
+4. Build a static library:
 
     ```sh
     cmake --build . --clean-first
     ```
 
-## Usage
+5. Now you can include a `bigint.h` header file in your source files and link a static library `libbigint.a` during a compilation.
 
-TODO
+## Usage
+Below are ways you can utilize functions in this library.
+
+### `Initialize and free a bigint`
+```c
+#include "bigint.h"
+/* Initialization. */
+bigint_t *a = bigint_from_str("2236913125512124108572352");
+bigint_t *b = bigint_from_int(3236);
+
+/* Clean up. */
+bifree(a);
+bifree(b);
+```
+
+### `Perform arithmetic operations`
+```c
+#include "bigint.h"
+
+bigint_t *a_sum_b = bigint_sum(a, b);
+bigint_t *a_sub_b = bigint_sub(a, b);
+bigint_t *a_mul_b = bigint_mul(a, b);
+bigint_t *a_div_b = bigint_div(a, b);
+bigint_t *a_mod_b = bigint_mod(a, b);
+
+/* Clean up. */
+bifree(a);
+bifree(b);
+bifree(a_sum_b);
+bifree(a_sub_b);
+bifree(a_mul_b);
+bifree(a_div_b);
+bifree(a_mod_b);
+```
 
 ## Examples
 
-TODO
+For example, you can calculate `1000!` using functions defined in this library.
+
+```c
+bigint_t *factorial(const unsigned int n) {
+  bigint_t *resp, *tmp, *factor;
+  unsigned int p;
+
+  resp = tmp = factor = NULL;
+
+  resp = bigint_from_int(1);
+
+  if ((n == 0) || (n == 1)) {
+    return resp;
+  }
+
+  for (p = 2; p <= n; ++p) {
+    factor = bigint_from_int(p);
+    tmp = bigint_mul(resp, factor);
+    bifree(factor);
+    bifree(resp);
+    resp = tmp;
+  }
+
+  return resp;
+}
+
+bigint_t factorial_1000 = factorial(1000);
+char *str = bigint_to_str(factorial_1000);
+
+/* str now hold all digits of 1000! in little-endian order. */
+
+bifree(factorial_1000);
+free(str);
+```
 
 ## Licenses
 

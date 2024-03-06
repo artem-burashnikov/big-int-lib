@@ -155,7 +155,7 @@ bigint_t *factorial(const unsigned int n) {
 bigint_t factorial_1000 = factorial(1000);
 char *str = bigint_to_str(factorial_1000);
 
-/* str now hold all digits of 1000! in little-endian order. */
+/* str now holds all digits of 1000! in little-endian order. */
 
 bifree(factorial_1000);
 free(str);

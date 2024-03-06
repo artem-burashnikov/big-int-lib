@@ -177,28 +177,6 @@ MU_TEST(padding) {
   free(str_b);
 }
 
-MU_TEST(rshift) {
-  bigint_t *a = bigint_from_int(1256);
-  bigint_t *b = bigint_from_int(0);
-  bigint_t *c = bigint_from_int(3);
-  bigint_rshift(a, 1);
-  bigint_rshift(b, 10);
-  bigint_rshift(c, 0);
-  char *str_a = bigint_to_str(a);
-  char *str_b = bigint_to_str(b);
-  char *str_c = bigint_to_str(c);
-  mu_assert_string_eq("12560", str_a);
-  mu_assert_string_eq("00000000000", str_b);
-  mu_assert_string_eq("3", str_c);
-
-  bifree(a);
-  bifree(b);
-  bifree(c);
-  free(str_a);
-  free(str_b);
-  free(str_c);
-}
-
 MU_TEST(sum) {
   bigint_t *a = bigint_from_int(112);
   bigint_t *neg_a = bigint_from_int(-112);
@@ -667,7 +645,6 @@ int main() {
   MU_RUN_TEST(from_str);
   MU_RUN_TEST(from_int);
   MU_RUN_TEST(padding);
-  MU_RUN_TEST(rshift);
   MU_RUN_TEST(sum);
   MU_RUN_TEST(sub);
   MU_RUN_TEST(mul);

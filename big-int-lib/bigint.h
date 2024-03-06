@@ -32,6 +32,12 @@ bigint_t* bigint_from_int(int32_t n);
 /* Convert from BigInt to integer. */
 int32_t bigint_to_int(const bigint_t* ap);
 
+/* Initialize a new bigint struct which copies the ap. */
+bigint_t* bigint_cpy(const bigint_t* ap);
+
+/* Return -1 if x < y, 0 if x == y, 1 if x > y. */
+int8_t bigint_cmp(const bigint_t* ap, const bigint_t* bp);
+
 /* Return the sum of two big integers. */
 bigint_t* bigint_sum(const bigint_t* ap, const bigint_t* bp);
 

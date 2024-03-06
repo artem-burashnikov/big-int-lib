@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdint.h>
 
 #include "bigint.h"
@@ -6,7 +5,7 @@
 
 bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *resp;
-  size_t i, j, m, n;
+  size_t m, n;
   int8_t w, carry;
   char *u, *v, *res;
 
@@ -24,9 +23,9 @@ bigint_t *bigint_mul(const bigint_t *ap, const bigint_t *bp) {
   v = bp->digits;
   res = resp->digits;
 
-  for (j = 0; j < m; ++j) {
+  for (size_t j = 0; j < m; ++j) {
     carry = 0;
-    for (i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       w = (u[i]) * (v[j]) + res[i + j] + carry;
       res[i + j] = w % BASE;
       carry = w / BASE;

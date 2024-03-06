@@ -1,7 +1,10 @@
-#include <assert.h>
-
 #include "bigint.h"
 #include "utils.h"
+
+static sign_t rev_sign(sign_t sgn) {
+  sign_t ret = -1 * sgn;
+  return ret;
+}
 
 bigint_t *bigint_sub(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *v, *res;

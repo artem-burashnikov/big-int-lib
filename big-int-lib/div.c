@@ -1,16 +1,37 @@
-#include <assert.h>
 #include <stdint.h>
 
 #include "bigint.h"
 #include "utils.h"
 
+void add_one(bigint_t *ap) {
+  size_t n;
+  int8_t carry, w;
+
+  n = ap->len;
+
+  bigint_add_padding(ap, 1);
+
+  carry = 0;
+  for (size_t i = 0; i < n; ++i) {
+    if (i == 0) {
+      w = ap->digits[i] + carry + 1;
+    } else {
+      w = ap->digits[i] + carry;
+    }
+    ap->digits[i] = w % BASE;
+    carry = w / BASE;
+  }
+  ap->digits[n] = carry;
+  bigint_normalize(ap);
+  return;
+}
+
 /* Perform a multiplication by a single decimal. */
 static void bigint_mul_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
-  size_t i;
   uint8_t w, carry;
 
   carry = 0;
-  for (i = 0; i < ap->len; ++i) {
+  for (size_t i = 0; i < ap->len; ++i) {
     w = ap->digits[i] * d + carry;
     resp->digits[i] = w % BASE;
     carry = w / BASE;
@@ -21,15 +42,13 @@ static void bigint_mul_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
 
 /* Perform a division by a single decimal. */
 static void bigint_div_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
-  size_t i;
-  uint8_t r, q, sum;
+  uint8_t w, r, q;
 
   r = q = 0;
-  for (i = 0; i < ap->len; ++i) {
-    sum = BASE * r + ap->digits[ap->len - 1 - i];
-    q = sum / d;
-    r = sum % d;
-    resp->digits[ap->len - 1 - i] = q;
+  for (size_t i = 0; i < ap->len; ++i) {
+    w = BASE * r + ap->digits[ap->len - 1 - i];
+    resp->digits[ap->len - 1 - i] = w / d;
+    r = w % d;
   }
 
   bigint_normalize(resp);
@@ -42,39 +61,30 @@ static int8_t guess_test(uint8_t q, uint8_t r, uint8_t v, uint8_t u) {
 }
 
 static int8_t mulsub(bigint_t *u, bigint_t *v, size_t n, size_t j, uint8_t q) {
-  uint8_t mul, sum_carry;
-  int8_t sub, sub_carry;
-  size_t i;
+  int8_t mul, sum_carry, sub, sub_carry;
 
-  sum_carry = 0;
-  sub_carry = 0;
-  for (i = 0; i <= n; ++i) {
+  sum_carry = sub_carry = 0;
+  for (size_t i = 0; i <= n; ++i) {
     mul = q * v->digits[i] + sum_carry;
-    sub = u->digits[j + i] - (mul % 10) + sub_carry;
-    sum_carry = mul / 10;
+    sub = u->digits[j + i] - (mul % BASE) + sub_carry;
+    u->digits[j + i] = eu_mod(sub, BASE);
+    sum_carry = mul / BASE;
     sub_carry = eu_div(sub, BASE);
-    sub = eu_mod(sub, BASE);
-    u->digits[j + i] = sub;
   }
 
   return sub_carry;
 }
 
-/* This function is called when the guessed q were 1 off. */
+/* This function is called when the guessed q was 1 off. */
 static void addback(bigint_t *u, bigint_t *v, size_t n, size_t j) {
-  size_t i;
   int8_t w, carry;
 
   carry = 0;
-  for (i = 0; i <= n; ++i) {
+  for (size_t i = 0; i <= n; ++i) {
     w = u->digits[j + i] + v->digits[i] + carry;
+    u->digits[j + i] = w % BASE;
     carry = w / BASE;
-    w %= BASE;
-    u->digits[j + i] = w;
   }
-  assert(carry == 1);
-  assert(i == n + 1);
-  assert(u->len >= (n + j));
   u->digits[n + j] = 0;
 
   return;
@@ -117,7 +127,7 @@ static uint8_t guessq(char *u, char *v, size_t j, size_t n) {
 /* Schoolbook division which utilizes Knuth's Algorithm D section 4.3.1. */
 static bigint_t *bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp) {
   bigint_t *resp, *u, *v;
-  size_t j, n, m;
+  size_t n, m;
   uint8_t d, q;
   int8_t carry;
 
@@ -146,7 +156,7 @@ static bigint_t *bigint_div_mod_pos(const bigint_t *ap, const bigint_t *bp) {
   /* Loop to find the resulting quotient of size no bigger than m + 1.
      j should be set to m, but to avoid the resulting oveflow from going
      below zero, it is instead set to m + 1. */
-  for (j = m + 1; j > 0; --j) {
+  for (size_t j = m + 1; j > 0; --j) {
     q = guessq(u->digits, v->digits, (j - 1), n);
 
     bigint_add_padding(v, 1);
@@ -185,7 +195,6 @@ bigint_t *bigint_div(const bigint_t *ap, const bigint_t *bp) {
   } else if ((cmp == -1) && (bp->sign == neg)) {
     return bigint_from_int(1);
   }
-  assert(ap->len >= bp->len);
   resp = bigint_div_mod_pos(ap, bp);
 
   if (ap->sign == neg) {

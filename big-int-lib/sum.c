@@ -1,46 +1,37 @@
-#include <assert.h>
 #include <stdint.h>
 
 #include "bigint.h"
 #include "utils.h"
 
 static void helper_sub(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
-  int8_t carry, w, r, q;
-  size_t i;
+  int8_t carry, w;
 
   carry = 0;
-  for (i = 0; i < ap->len; ++i) {
+  for (size_t i = 0; i < ap->len; ++i) {
     w = ap->digits[i] + carry;
     if (i < bp->len) {
       w -= bp->digits[i];
     }
-    r = eu_mod(w, BASE);
-    q = eu_div(w, BASE);
-    carry = q;
-    res->digits[i] = r;
+    res->digits[i] = eu_mod(w, BASE);
+    carry = eu_div(w, BASE);
   }
-  assert(carry == 0);
 
   return;
 }
 
 static void helper_sum(const bigint_t *ap, const bigint_t *bp, bigint_t *res) {
   int8_t carry, w;
-  size_t i;
 
   carry = 0;
-  for (i = 0; i < ap->len; ++i) {
+  for (size_t i = 0; i < ap->len; ++i) {
     w = ap->digits[i] + carry;
     if (i < bp->len) {
       w += bp->digits[i];
     }
+    res->digits[i] = w % BASE;
     carry = w / BASE;
-    w %= BASE;
-    res->digits[i] = w;
   }
-  assert(carry >= 0);
-  assert(i == ap->len);
-  res->digits[i] = carry;
+  res->digits[ap->len] = carry;
 
   return;
 }
@@ -55,8 +46,6 @@ bigint_t *bigint_sum(const bigint_t *ap, const bigint_t *bp) {
   if (bigint_cmp_abs(ap, bp) == -1) {
     return bigint_sum(bp, ap);
   }
-
-  assert(ap->len >= bp->len);
 
   res = bigint_from_size(ap->len + 1);
 

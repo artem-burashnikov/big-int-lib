@@ -1,6 +1,5 @@
 #include "bigint.h"
 
-#include <assert.h>
 #include <ctype.h>
 #include <stdint.h>
 #include <string.h>
@@ -29,7 +28,7 @@ bigint_t *bigint_from_size(const size_t len) {
   bigint_t *ap = malloc(sizeof(bigint_t));
   char *tmp = calloc(len, sizeof(char));
 
-  if ((ap == NULL) || (tmp == NULL) || (!len)) {
+  if (!ap || !tmp || !len) {
     free(tmp);
     free(ap);
     return NULL;
@@ -43,8 +42,8 @@ bigint_t *bigint_from_size(const size_t len) {
 
 bigint_t *bigint_from_str(const char *str) {
   bigint_t *ap;
-  size_t i, sign, len, digits_cnt;
-  char c;
+  int8_t sign;
+  size_t len, digits_cnt;
 
   if (!str || ((len = strlen(str)) == 0)) {
     return NULL;
@@ -52,8 +51,7 @@ bigint_t *bigint_from_str(const char *str) {
 
   digits_cnt = len;
 
-  /* If the first character in a string is a sign,
-     the number of digits is less than the string's length. */
+  /* Pick a leading sign if any. */
   if ((*str == '-')) {
     --digits_cnt;
     sign = neg;
@@ -65,14 +63,13 @@ bigint_t *bigint_from_str(const char *str) {
   }
 
   /* Ignore leading zeroes. */
-  for (i = (sign == neg); (digits_cnt > 0) && ((c = str[i++]) == '0');
-       --digits_cnt) {
-    ;
+  while ((digits_cnt > 0) && (str[len - digits_cnt] == '0')) {
+    --digits_cnt;
   }
 
+  /* Single zero is a zero element. */
   if (digits_cnt == 0) {
     ap = bigint_from_size(1);
-    ap->sign = zero;
     *ap->digits = 0;
     return ap;
   }
@@ -85,8 +82,8 @@ bigint_t *bigint_from_str(const char *str) {
 
   ap->sign = sign;
 
-  for (i = 0; i < digits_cnt; ++i) {
-    c = str[len - 1 - i];
+  for (size_t i = 0; i < digits_cnt; ++i) {
+    char c = str[len - 1 - i];
     if (isdigit(c)) {
       ap->digits[i] = c - '0';
     } else {
@@ -100,21 +97,18 @@ bigint_t *bigint_from_str(const char *str) {
 
 static bigint_t *bigint_from_digits(const size_t n, const size_t digits_cnt) {
   bigint_t *retp;
-  size_t i, x;
   char d;
 
   retp = bigint_from_size(digits_cnt);
 
-  if (!retp) {
+  if (!retp || !retp->digits) {
     return NULL;
   }
 
-  x = n;
-  if (x == 0) {
-    retp->digits[0] = 0;
-    assert(retp->sign == zero);
+  if (n == 0) {
+    *retp->digits = 0;
   } else {
-    for (i = 0; x > 0; i++, x /= 10) {
+    for (size_t i = 0, x = n; x > 0; i++, x /= 10) {
       d = x % 10;
       retp->digits[i] = d;
     }
@@ -135,8 +129,6 @@ static bigint_t *bigint_from_uint(const uint64_t n) {
   }
 
   digits_cnt = get_num_digits(n);
-
-  assert(digits_cnt != 0);
 
   retp = bigint_from_digits(n, digits_cnt);
 
@@ -163,15 +155,15 @@ bigint_t *bigint_from_int(int32_t n) {
 int32_t bigint_to_int(const bigint_t *ap) {
   int32_t i, p, res;
 
+  if (ap->sign == zero) {
+    res = 0;
+  }
+
   if (ap->sign != zero) {
     for (p = 1, res = 0, i = 0; i < ap->len; ++i) {
       res += p * ap->digits[i];
       p *= 10;
     }
-  }
-
-  if (ap->sign == zero) {
-    res = 0;
   }
 
   if (ap->sign == neg) {
@@ -184,7 +176,7 @@ int32_t bigint_to_int(const bigint_t *ap) {
 char *bigint_to_str(const bigint_t *ap) {
   char *str;
   int8_t sign;
-  size_t str_len, i;
+  size_t str_len;
 
   if (!ap) {
     return NULL;
@@ -205,11 +197,52 @@ char *bigint_to_str(const bigint_t *ap) {
     *str = '-';
   }
 
-  for (i = 0; i < ap->len; ++i) {
+  for (size_t i = 0; i < ap->len; ++i) {
     str[ap->len + sign - 1 - i] = ap->digits[i] + '0';
   }
 
   str[str_len] = '\0';
 
   return str;
+}
+
+int8_t bigint_cmp(const bigint_t *ap, const bigint_t *bp) {
+  int8_t ret, sign, abs_cmp;
+
+  ret = 0;
+  abs_cmp = bigint_cmp_abs(ap, bp);
+  sign = ap->sign == bp->sign;
+
+  if (sign) {
+    ret = (abs_cmp == 0) ? (0) : (-abs_cmp);
+  } else if ((ap->sign == neg) && (bp->sign == pos)) {
+    ret = -1;
+  } else if ((ap->sign == pos) && (bp->sign == neg)) {
+    ret = 1;
+  }
+
+  return ret;
+}
+
+bigint_t *bigint_cpy(const bigint_t *ap) {
+  bigint_t *res;
+
+  res = malloc(sizeof(bigint_t));
+
+  if (!ap || !res) {
+    return NULL;
+  }
+
+  res->digits = calloc(ap->len, sizeof(char));
+
+  if (!res->digits) {
+    bifree(res);
+    return NULL;
+  }
+
+  res->sign = ap->sign;
+  res->len = ap->len;
+  memcpy(res->digits, ap->digits, ap->len * sizeof(char));
+
+  return res;
 }

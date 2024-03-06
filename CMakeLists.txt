@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(bigintlib)
 
@@ -21,12 +21,6 @@ add_executable(tests
 # Link the static library to the tests executable
 target_link_libraries(tests bigint)
 
-# Set the output directory for the tests executable
-set_target_properties(tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/tests")
-
-# Set the output directory for the static library
-set_target_properties(bigint PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build/big-int-lib")
-
 # Add compiler flags
 target_compile_options(bigint PRIVATE -Wall -g)
 target_compile_options(tests PRIVATE -Wall -g)
@@ -39,4 +33,4 @@ file(GLOB_RECURSE ALL_SOURCE_FILES *.c *.h)
 add_custom_target(format COMMAND clang-format -style=Google -i ${ALL_SOURCE_FILES})
 
 # Add Valgrind
-add_custom_target(memcheck COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose "${CMAKE_CURRENT_SOURCE_DIR}/build/tests/tests" DEPENDS tests)
+add_custom_target(memcheck COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./tests DEPENDS tests)

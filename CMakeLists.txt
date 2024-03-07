@@ -33,4 +33,4 @@ file(GLOB_RECURSE ALL_SOURCE_FILES *.c *.h)
 add_custom_target(format COMMAND clang-format -style=Google -i ${ALL_SOURCE_FILES})
 
 # Add Valgrind
-add_custom_target(memcheck COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose ./tests DEPENDS tests)
+add_custom_target(memcheck COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./tests DEPENDS tests)

@@ -12,10 +12,7 @@ void bigint_add_padding(bigint_t* ap, const uint8_t t) {
   }
 
   ap->digits = realloc(ap->digits, sizeof(char) * (ap->len + t));
-
-  for (size_t i = ap->len; i < (ap->len + t); ++i) {
-    ap->digits[i] = 0;
-  }
+  memset(ap->digits + ap->len, 0, t);
 
   ap->len += t;
 
@@ -23,6 +20,7 @@ void bigint_add_padding(bigint_t* ap, const uint8_t t) {
 }
 
 void bigint_normalize(bigint_t* ap) {
+  char* tmp;
   size_t old_len, new_len;
 
   old_len = new_len = ap->len;
@@ -32,7 +30,11 @@ void bigint_normalize(bigint_t* ap) {
   }
 
   if (new_len != old_len) {
-    ap->digits = realloc(ap->digits, sizeof(char) * new_len);
+    tmp = realloc(ap->digits, sizeof(char) * new_len);
+    if (!tmp) {
+      return;
+    }
+    ap->digits = tmp;
     ap->len = new_len;
   }
 

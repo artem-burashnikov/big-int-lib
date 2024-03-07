@@ -10,7 +10,7 @@ static size_t get_num_digits(const uint64_t n) {
   size_t len;
   uint64_t x;
 
-  for (len = 0, x = n; x > 0; x /= 10) {
+  for (len = 0, x = n; x > 0; x /= BASE) {
     len += 1;
   }
   return len;
@@ -158,7 +158,7 @@ int32_t bigint_to_int(const bigint_t *ap) {
 
   for (p = 1, res = 0, i = 0; i < ap->len; ++i) {
     res += p * ap->digits[i];
-    p *= 10;
+    p *= BASE;
   }
 
   if (ap->sign == neg) {

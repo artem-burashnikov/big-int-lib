@@ -42,9 +42,9 @@ static void bigint_mul_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
 
 /* Perform a division by a single decimal. */
 static void bigint_div_dec_pos(const bigint_t *ap, bigint_t *resp, uint8_t d) {
-  uint8_t w, r, q;
+  uint8_t w, r;
 
-  r = q = 0;
+  r = 0;
   for (size_t i = 0; i < ap->len; ++i) {
     w = BASE * r + ap->digits[ap->len - 1 - i];
     resp->digits[ap->len - 1 - i] = w / d;

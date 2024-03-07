@@ -640,6 +640,24 @@ MU_TEST(bigint_gcd) {
   bifree(res2);
 }
 
+MU_TEST(bigint_cmp_test) {
+  bigint_t *a = bigint_from_int(1);
+  bigint_t *b = bigint_from_int(0);
+  bigint_t *c = bigint_from_int(-2);
+
+  mu_check(bigint_cmp(a, b) == 1);
+  mu_check(bigint_cmp(a, c) == 1);
+  mu_check(bigint_cmp(b, a) == -1);
+  mu_check(bigint_cmp(b, c) == 1);
+  mu_check(bigint_cmp(c, a) == -1);
+  mu_check(bigint_cmp(c, b) == -1);
+  mu_check(bigint_cmp(c, c) == 0);
+
+  bifree(a);
+  bifree(b);
+  bifree(c);
+}
+
 int main() {
   MU_RUN_TEST(from_size);
   MU_RUN_TEST(from_str);
@@ -653,6 +671,7 @@ int main() {
   MU_RUN_TEST(divdecneg);
   MU_RUN_TEST(bidiv);
   MU_RUN_TEST(bigint_gcd);
+  MU_RUN_TEST(bigint_cmp_test);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

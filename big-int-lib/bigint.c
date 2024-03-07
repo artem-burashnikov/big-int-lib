@@ -95,9 +95,8 @@ bigint_t *bigint_from_str(const char *str) {
   return ap;
 }
 
-static bigint_t *bigint_from_digits(const size_t n, const size_t digits_cnt) {
+static bigint_t *bigint_from_digits(const uint64_t n, const size_t digits_cnt) {
   bigint_t *retp;
-  char d;
 
   retp = bigint_from_size(digits_cnt);
 
@@ -108,9 +107,8 @@ static bigint_t *bigint_from_digits(const size_t n, const size_t digits_cnt) {
   if (n == 0) {
     *retp->digits = 0;
   } else {
-    for (size_t i = 0, x = n; x > 0; i++, x /= 10) {
-      d = x % 10;
-      retp->digits[i] = d;
+    for (size_t i = 0, x = n; x > 0; i++, x /= BASE) {
+      retp->digits[i] = x % BASE;
     }
     retp->sign = pos;
   }
@@ -142,8 +140,7 @@ bigint_t *bigint_from_int(int32_t n) {
   } else if (n > 0) {
     retp = bigint_from_uint(n);
   } else {
-    int x = -n;
-    retp = bigint_from_uint(x);
+    retp = bigint_from_uint(-(uint64_t)n);
     if (!retp) {
       return NULL;
     }
@@ -156,14 +153,12 @@ int32_t bigint_to_int(const bigint_t *ap) {
   int32_t i, p, res;
 
   if (ap->sign == zero) {
-    res = 0;
+    return 0;
   }
 
-  if (ap->sign != zero) {
-    for (p = 1, res = 0, i = 0; i < ap->len; ++i) {
-      res += p * ap->digits[i];
-      p *= 10;
-    }
+  for (p = 1, res = 0, i = 0; i < ap->len; ++i) {
+    res += p * ap->digits[i];
+    p *= 10;
   }
 
   if (ap->sign == neg) {
@@ -215,9 +210,9 @@ int8_t bigint_cmp(const bigint_t *ap, const bigint_t *bp) {
 
   if (sign) {
     ret = (abs_cmp == 0) ? (0) : (-abs_cmp);
-  } else if ((ap->sign == neg) && (bp->sign == pos)) {
+  } else if (ap->sign < bp->sign) {
     ret = -1;
-  } else if ((ap->sign == pos) && (bp->sign == neg)) {
+  } else {
     ret = 1;
   }
 

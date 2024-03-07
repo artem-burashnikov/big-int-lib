@@ -3,6 +3,9 @@
 
 #include "bigint.h"
 
+/* Return a pointer to a new BigInt structure of the specified length. */
+bigint_t* bigint_from_size(const size_t len);
+
 /* Return -1 if |x| < |y|, 0 if |x| == |y|, 1 if |x| > |y|. */
 int8_t bigint_cmp_abs(const bigint_t* ap, const bigint_t* bp);
 

@@ -17,9 +17,6 @@ typedef struct {
 /* Free an allocated memory. */
 void bifree(bigint_t* ap);
 
-/* Return a pointer to a new BigInt structure of the specified length. */
-bigint_t* bigint_from_size(const size_t len);
-
 /* Convert from string base 10 to BigInt. */
 bigint_t* bigint_from_str(const char* str);
 

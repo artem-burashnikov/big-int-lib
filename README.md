@@ -1,5 +1,6 @@
 # big-int-lib
 
+[![Build status][status-shield]][status-url]
 [![MIT License][license-shield]][license-url]
 
 ## Overview
@@ -168,3 +169,5 @@ The project is licensed under an [MIT License][license-url].
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [license-shield]: https://img.shields.io/github/license/artem-burashnikov/big-int-lib.svg?style=for-the-badge&color=blue
 [license-url]: LICENSE
+[status-shield]: https://img.shields.io/github/actions/workflow/status/artem-burashnikov/big-int-lib/.github/workflows/ci.yml?branch=main&event=push&style=for-the-badge
+[status-url]: https://github.com/artem-burashnikov/big-int-lib/blob/main/.github/workflows/ci.yml
